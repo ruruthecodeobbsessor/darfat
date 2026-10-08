@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+
+export const metadata = {
+  title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
+  description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
+};
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
 
 export default function HomePage() {

@@ -5,6 +5,12 @@ import { CheckCircle, XCircle, Briefcase, MapPin, Calendar } from 'lucide-react'
 
 import { connection } from 'next/server';
 
+export const instant = false;
+
+export const metadata = {
+  title: "بەڕێوەبردنی دەرفەتەکان | دەرفەت",
+};
+
 export default async function AdminOpportunitiesPage() {
   await connection();
   const res = await query('SELECT * FROM opportunities ORDER BY created_at DESC');

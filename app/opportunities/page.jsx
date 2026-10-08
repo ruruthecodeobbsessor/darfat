@@ -5,6 +5,13 @@ import { Calendar, MapPin, Briefcase } from 'lucide-react';
 
 import { connection } from 'next/server';
 
+export const instant = false;
+
+export const metadata = {
+  title: "دەرفەتەکان | دەرفەت",
+  description: "گەڕان و فلتەرکردنی دەرفەتەکانی کوردستان لە هاکاسۆن، وۆرکشۆپ، خول و خۆبەخشی.",
+};
+
 export default async function OpportunitiesPage({ searchParams }) {
   await connection();
   const resolvedParams = await searchParams;

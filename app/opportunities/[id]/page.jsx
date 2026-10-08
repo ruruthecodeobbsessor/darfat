@@ -5,6 +5,24 @@ import { Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-r
 
 import { connection } from 'next/server';
 
+export const instant = false;
+
+export async function generateMetadata({ params }) {
+  try {
+    const { id } = await params;
+    const res = await query('SELECT title, description FROM opportunities WHERE id = $1', [id]);
+    if (res.rows && res.rows.length > 0) {
+      return {
+        title: `${res.rows[0].title} | دەرفەت`,
+        description: res.rows[0].description?.slice(0, 160) || "زانیاری وردیی دەرفەت",
+      };
+    }
+  } catch {
+    // fallback
+  }
+  return { title: "وردەکاری دەرفەت | دەرفەت" };
+}
+
 export default async function OpportunityDetail({ params }) {
   await connection();
   const { id } = await params;

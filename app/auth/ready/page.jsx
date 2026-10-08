@@ -6,6 +6,10 @@ import { SignOutButton } from "@/components/auth/SignOutButton";
 import { Spinner } from "@/components/ui/spinner";
 import { Card } from "@/components/ui/card";
 
+export const metadata = {
+  title: "ئامادەکاری هەژمار | دەرفەت",
+};
+
 async function ReadyContent() {
   await requireAuth();
   return <Card className="w-full max-w-md space-y-5 p-8 text-center">
