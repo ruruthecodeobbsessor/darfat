@@ -27,6 +27,28 @@ const getCategorySolidBg = (type) => {
   }
 };
 
+const getCategoryIconAnimation = (type) => {
+  switch (type) {
+    case "hackathon": 
+      // Coding/tech shift: slight skew and scale
+      return "group-hover:skew-x-12 group-hover:-translate-y-1 group-hover:scale-110 transition-all duration-300";
+    case "volunteer": 
+      // Leaf blowing gently in the wind
+      return "origin-bottom-left group-hover:-rotate-12 group-hover:-translate-y-2 group-hover:scale-110 transition-all duration-500";
+    case "competition": 
+      // Trophy popping up proudly
+      return "group-hover:-translate-y-3 group-hover:scale-110 transition-all duration-300 ease-out";
+    case "workshop": 
+      // Lightbulb expanding (idea growing)
+      return "group-hover:scale-125 transition-all duration-300";
+    case "club": 
+      // Community growing
+      return "group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300";
+    default: 
+      return "group-hover:scale-110 transition-all duration-500";
+  }
+};
+
 export function SpotlightCard({ item }) {
   const divRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -88,8 +110,8 @@ export function SpotlightCard({ item }) {
           </div>
         )}
         
-        {/* Large Centered Icon matching the mockup */}
-        {getCategoryIcon(item.type, "w-20 h-20 text-slate-900 group-hover:scale-110 transition-transform duration-500")}
+        {/* Large Centered Icon matching the mockup with custom animation */}
+        {getCategoryIcon(item.type, `w-20 h-20 text-slate-900 ${getCategoryIconAnimation(item.type)}`)}
       </div>
 
       <div className="relative z-10 flex flex-col h-full p-6 pt-5">
