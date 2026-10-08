@@ -12,6 +12,8 @@ const vazirmatn = Vazirmatn({
   display: "swap",
 });
 
+
+
 export const metadata = {
   title: {
     default: "دەرفەت | پلاتفۆرمی دەرفەتەکان بۆ گەنجانی کوردستان",

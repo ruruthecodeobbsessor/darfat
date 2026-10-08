@@ -7,6 +7,7 @@ import { SUPABASE_DATABASE_CA } from "../lib/tasks/database-ca.js";
 
 nextEnv.loadEnvConfig(process.cwd());
 const version = "20261008123000";
+const repairLogin = process.argv.includes("--repair-login");
 const migration = fs.readFileSync(`supabase/migrations/${version}_tasks.sql`, "utf8");
 const client = databaseClient();
 let login;
@@ -36,6 +37,26 @@ try {
   } else {
     login = process.env.TASK_DATABASE_URL;
     if (!login) throw new Error("Task login exists. Configure its TASK_DATABASE_URL without rotating existing credentials.");
+    if (repairLogin) {
+      // Restore this app's existing random credential only when explicitly invoked.
+      // Never rotate shared project credentials or grant extra database privileges.
+      const saved = new URL(login);
+      const setup = new URL(databaseConnection());
+      const setupUser = decodeURIComponent(setup.username);
+      const expectedUser = setupUser.includes(".") ? `task_api${setupUser.slice(setupUser.indexOf("."))}` : "task_api";
+      const password = decodeURIComponent(saved.password);
+      if (decodeURIComponent(saved.username) !== expectedUser || saved.hostname !== setup.hostname ||
+          saved.port !== setup.port || saved.pathname !== setup.pathname || !/^[a-f0-9]{64}$/.test(password)) {
+        throw new Error("Repair requires this project's existing dedicated Task connection and generated credential.");
+      }
+      const { rows: [security] } = await client.query("select rolcanlogin,rolbypassrls,rolsuper,pg_has_role('task_api','task_backend','member') as backend_member from pg_roles where rolname='task_api'");
+      if (!security?.rolcanlogin || security.rolbypassrls || security.rolsuper || !security.backend_member) {
+        throw new Error("Repair requires the restricted Task login, without elevated privileges.");
+      }
+      // Generated hex only: no user-supplied SQL and no credentials in output.
+      await client.query(`alter role task_api password '${password}'`);
+      console.log("Dedicated Task login credential restored to the existing local configuration.");
+    }
   }
 
   // Confirm encrypted, certificate-verified access using the dedicated non-bypass role.

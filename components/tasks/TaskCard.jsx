@@ -97,7 +97,7 @@ export function TaskCard({ assignment, busy, onAction }) {
         </div>
         <Input id={`link-${assignment.id}`} name="workLink" label="بەستەری کارەکەت (ئارەزوومەندانە)" type="url" dir="ltr" maxLength={2048}
           value={link} onChange={(event) => setLink(event.target.value)} error={error?.fields?.workLink} placeholder="https://..." />
-        <p className="text-xs leading-relaxed text-slate-500">وەڵام و بەستەرەکەت بۆ هەڵسەنگاندن دەنێردرێن بۆ Gemini. ناوەڕۆکی بەستەرەکە ناکرێتەوە؛ هەڵسەنگاندن پشت بە وەڵامی نووسراو دەبەستێت.</p>
+        <p className="text-xs leading-relaxed text-slate-500">وەڵام و بەستەرەکەت بۆ هەڵسەنگاندن دەنێردرێن بۆ Gemini؛ ئەگەر سەرکەوتوو نەبوو، Groq بەکاردێت. ناوەڕۆکی بەستەرەکە ناکرێتەوە؛ هەڵسەنگاندن پشت بە وەڵامی نووسراو دەبەستێت.</p>
         <div className="flex flex-wrap gap-3">
           <Button type="submit" isLoading={busy} className="bg-orange-700 hover:bg-orange-800"><Send aria-hidden="true" className="h-4 w-4" /> ناردن بۆ هەڵسەنگاندن</Button>
           <Button variant="ghost" onClick={() => setShowSubmission(false)}>پاشگەزبوونەوە</Button>
@@ -121,7 +121,7 @@ export function TaskCard({ assignment, busy, onAction }) {
 
     {feedback && <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-        <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" className="h-5 w-5" /> هەڵسەنگاندنی Gemini</span>
+        <span className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" className="h-5 w-5" /> هەڵسەنگاندنی ژیریی دەستکرد</span>
         <span className="text-xl font-bold text-emerald-900" dir="ltr">{feedback.score}<span className="text-sm font-medium text-emerald-700"> / 100</span></span>
         <span className="w-full text-sm font-semibold text-emerald-800">{feedback.earned_points} خاڵی بەدەستهاتوو لە {task.points}</span>
       </div>

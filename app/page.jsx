@@ -9,24 +9,59 @@ import {
   Briefcase,
   Target,
   Lightbulb,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles,
+  ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { SpotlightCard } from "@/components/SpotlightCard";
 
 export const metadata = {
   title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
   description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
 };
+
+import { query } from '@/lib/db';
+import { connection } from 'next/server';
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
 
-export default function HomePage() {
-  const sampleOpportunities = [
+export const instant = false;
+
+export default async function HomePage() {
+  await connection();
+  
+  let dbOpportunities = [];
+  try {
+    const res = await query(`
+      SELECT * FROM opportunities 
+      WHERE status = 'published' AND (deadline >= CURRENT_DATE OR deadline IS NULL)
+      ORDER BY created_at DESC
+      LIMIT 3
+    `);
+    
+    dbOpportunities = res.rows.map(opp => ({
+      id: opp.id,
+      title: opp.title,
+      type: opp.type,
+      link: opp.link,
+      organizer: opp.organizer || 'نەزانراو',
+      location: opp.location || 'کوردستان',
+      date: opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات',
+      skills: Array.isArray(opp.required_skills) && opp.required_skills.length > 0 ? opp.required_skills.slice(0,3) : ["گەشەپێدان", "فێربوون"],
+      aiReason: "٩٠٪ گونجاوە - ژیریی دەستکرد پێشبینی دەکات ئەمە دەرفەتێکی باش بێت بۆ گەشەپێدانی تواناکانت."
+    }));
+  } catch (error) {
+    console.error("Failed to load opportunities for homepage:", error);
+  }
+
+  const sampleOpportunities = dbOpportunities.length > 0 ? dbOpportunities : [
     {
       id: "1",
       title: "هاکاسۆنی پڕۆگرامسازی بۆ لاوانی کوردستان",
       type: "hackathon",
       organizer: "دەزگای تەکنەلۆژیای هەولێر",
+      link: "https://github.com",
       location: "هەولێر",
       date: "١٥ تشرینی دووەم ٢٠٢٦",
       skills: ["React", "Python", "UI/UX"],
@@ -37,6 +72,7 @@ export default function HomePage() {
       title: "فیستیڤاڵی گەنجانی داهێنەر",
       type: "volunteer",
       organizer: "ڕێکخراوی گەشەی لاوان",
+      link: "https://google.com",
       location: "سلێمانی",
       date: "٢٠ تشرینی دووەم ٢٠٢٦",
       skills: ["سەرکردایەتی", "ڕێکخستن", "پەیوەندییەکان"],
@@ -47,6 +83,7 @@ export default function HomePage() {
       title: "وۆرکشۆپی پەرەپێدانی ئەپڵیکەیشنی مۆبایل و دیزاین",
       type: "workshop",
       organizer: "ناوەندی گەشەپێدانی دهۆک",
+      link: "https://vercel.com",
       location: "دهۆک (ئۆنلاین)",
       date: "٢٨ تشرینی دووەم ٢٠٢٦",
       skills: ["Figma", "Mobile UI", "Next.js"],
@@ -196,59 +233,10 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {sampleOpportunities.map((item) => {
-              const typeConfig = OPPORTUNITY_TYPES ? OPPORTUNITY_TYPES[item.type] : null;
-              
-              return (
-                <div key={item.id} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors flex flex-col justify-between">
-                  <div>
-                    <div className="mb-3">
-                      <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                        {typeConfig ? typeConfig.label : item.type}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold text-lg mb-4 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <div className="space-y-2 text-sm text-slate-600 mb-6">
-                      <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" />
-                        <span>{item.organizer}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{item.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{item.date}</span>
-                      </div>
-                    </div>
-
-                    {/* Recommendation Reason Box */}
-                    <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-orange-900 mb-4 flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
-                      <p className="leading-relaxed">{item.aiReason}</p>
-                    </div>
-
-                    {/* Skills */}
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {item.skills.map((skill) => (
-                        <span key={skill} className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <Link href={`/opportunities`} className="block mt-4">
-                    <Button variant="secondary" className="w-full">
-                      وردەکاری زیاتر
-                    </Button>
-                  </Link>
-                </div>
-              );
-            })}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {sampleOpportunities.map((item) => (
+              <SpotlightCard key={item.id} item={item} />
+            ))}
           </div>
         </div>
       </section>

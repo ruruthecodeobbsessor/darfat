@@ -19,6 +19,7 @@ export async function updateProfile(_previousState, formData) {
     interests: formData.get("interests"),
     skills: formData.get("skills"),
     bio: formData.get("bio"),
+    headline: formData.get("headline"),
   });
 
   const errors = {};
