@@ -23,6 +23,7 @@ async function ProfileContent() {
         age: profile.age ?? null,
         interests: profile.interests ?? [],
         skills: profile.skills ?? [],
+        headline: profile.headline ?? "",
         bio: profile.bio ?? "",
         avatarUrl: profile.avatar_url ?? "",
       }}
