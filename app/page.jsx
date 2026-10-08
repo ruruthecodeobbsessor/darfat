@@ -231,8 +231,8 @@ export default async function HomePage() {
           </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {sampleOpportunities.map((item) => (
-              <SpotlightCard key={item.id} item={item} />
+            {sampleOpportunities.map((item, idx) => (
+              <SpotlightCard key={item.id} item={item} index={idx} />
             ))}
           </div>
         </div>

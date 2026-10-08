@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft, Tag, Code2, Leaf, Trophy, Lightbulb, Users } from "lucide-react";
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
@@ -49,11 +49,27 @@ const getCategoryIconAnimation = (type) => {
   }
 };
 
-export function SpotlightCard({ item }) {
+export function SpotlightCard({ item, index = 0 }) {
   const divRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.unobserve(entry.target);
+      }
+    }, { threshold: 0.05, rootMargin: '50px' });
+    
+    if (divRef.current) {
+      observer.observe(divRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, []);
 
   const handleMouseMove = (e) => {
     if (!divRef.current || isFocused) return;
@@ -90,7 +106,8 @@ export function SpotlightCard({ item }) {
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group relative overflow-hidden bg-white/40 backdrop-blur-[40px] border border-white/50 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:-translate-y-1 hover:bg-white/50 hover:border-white/80 rounded-[28px] transition-all duration-500 ease-out flex flex-col h-full"
+      className={`group relative overflow-hidden bg-white/40 backdrop-blur-[40px] border border-white/50 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:-translate-y-2 hover:bg-white/50 hover:border-white/80 rounded-[28px] transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full transform ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-[0.98]'}`}
+      style={{ transitionDelay: `${(index % 9) * 100}ms` }}
     >
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 rounded-[28px] z-0"
