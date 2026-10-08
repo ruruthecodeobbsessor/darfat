@@ -2,8 +2,30 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft, Tag } from "lucide-react";
+import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft, Tag, Code2, Leaf, Trophy, Lightbulb, Users } from "lucide-react";
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
+
+const getCategoryIcon = (type, className) => {
+  switch (type) {
+    case "hackathon": return <Code2 className={className} />;
+    case "volunteer": return <Leaf className={className} />;
+    case "competition": return <Trophy className={className} />;
+    case "workshop": return <Lightbulb className={className} />;
+    case "club": return <Users className={className} />;
+    default: return <Sparkles className={className} />;
+  }
+};
+
+const getCategoryColor = (type) => {
+  switch (type) {
+    case "hackathon": return "text-orange-500/[0.05]";
+    case "volunteer": return "text-emerald-500/[0.05]";
+    case "competition": return "text-purple-500/[0.05]";
+    case "workshop": return "text-blue-500/[0.05]";
+    case "club": return "text-amber-500/[0.05]";
+    default: return "text-slate-500/[0.05]";
+  }
+};
 
 export function SpotlightCard({ item }) {
   const divRef = useRef(null);
@@ -58,7 +80,7 @@ export function SpotlightCard({ item }) {
       
       {/* Decorative Watermark Icon */}
       <div className="absolute -bottom-10 -left-10 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none transform group-hover:scale-110 group-hover:rotate-12 z-0">
-        <Sparkles className="w-48 h-48 text-orange-500/[0.03]" />
+        {getCategoryIcon(item.type, `w-48 h-48 ${getCategoryColor(item.type)}`)}
       </div>
 
       <div className="relative z-10 flex flex-col h-full">
@@ -78,7 +100,7 @@ export function SpotlightCard({ item }) {
           <div className="flex flex-wrap gap-2 text-[12px] font-semibold text-slate-600">
             {item.type && OPPORTUNITY_TYPES[item.type] && (
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl shadow-sm border ${OPPORTUNITY_TYPES[item.type].badgeClass}`}>
-                <Tag className="w-3.5 h-3.5" />
+                {getCategoryIcon(item.type, "w-3.5 h-3.5")}
                 <span className="line-clamp-1">{OPPORTUNITY_TYPES[item.type].label}</span>
               </div>
             )}
