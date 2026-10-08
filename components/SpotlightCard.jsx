@@ -16,14 +16,14 @@ const getCategoryIcon = (type, className) => {
   }
 };
 
-const getCategoryColor = (type) => {
+const getCategorySolidBg = (type) => {
   switch (type) {
-    case "hackathon": return "text-orange-500/[0.05]";
-    case "volunteer": return "text-emerald-500/[0.05]";
-    case "competition": return "text-purple-500/[0.05]";
-    case "workshop": return "text-blue-500/[0.05]";
-    case "club": return "text-amber-500/[0.05]";
-    default: return "text-slate-500/[0.05]";
+    case "hackathon": return "bg-[#FF8B45]";
+    case "volunteer": return "bg-[#A5D4A3]";
+    case "competition": return "bg-[#E2B4FF]";
+    case "workshop": return "bg-[#8ABAF4]";
+    case "club": return "bg-[#FCD34D]";
+    default: return "bg-slate-200";
   }
 };
 
@@ -68,7 +68,7 @@ export function SpotlightCard({ item }) {
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group relative overflow-hidden bg-white/40 backdrop-blur-[40px] border border-white/50 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:-translate-y-1 hover:bg-white/50 hover:border-white/80 rounded-[28px] p-7 transition-all duration-500 ease-out flex flex-col h-full"
+      className="group relative overflow-hidden bg-white/40 backdrop-blur-[40px] border border-white/50 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:-translate-y-1 hover:bg-white/50 hover:border-white/80 rounded-[28px] transition-all duration-500 ease-out flex flex-col h-full"
     >
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 rounded-[28px] z-0"
@@ -78,21 +78,22 @@ export function SpotlightCard({ item }) {
         }}
       />
       
-      {/* Decorative Watermark Icon */}
-      <div className="absolute -bottom-10 -left-10 opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none transform group-hover:scale-110 group-hover:rotate-12 z-0">
-        {getCategoryIcon(item.type, `w-48 h-48 ${getCategoryColor(item.type)}`)}
+      {/* Cover Section */}
+      <div className={`relative w-full h-48 flex items-center justify-center shrink-0 transition-colors duration-300 ${getCategorySolidBg(item.type)}`}>
+        {item.matchScore > 0 && (
+          <div className="absolute top-4 left-4 z-10">
+            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-bold bg-white/90 text-slate-900 shadow-sm backdrop-blur-sm">
+              {item.matchScore}% گونجاوە
+            </span>
+          </div>
+        )}
+        
+        {/* Large Centered Icon matching the mockup */}
+        {getCategoryIcon(item.type, "w-20 h-20 text-slate-900 group-hover:scale-110 transition-transform duration-500")}
       </div>
 
-      <div className="relative z-10 flex flex-col h-full">
+      <div className="relative z-10 flex flex-col h-full p-6 pt-5">
         <div className="mb-6 flex-1">
-          {item.matchScore > 0 && (
-            <div className="flex items-center justify-end mb-6">
-              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-bold bg-orange-500 text-white shadow-sm shadow-orange-500/20">
-                {item.matchScore}% گونجاوە
-              </span>
-            </div>
-          )}
-
           <h3 className="text-[20px] font-extrabold text-slate-900 leading-snug mb-5 transition-colors duration-300 line-clamp-2">
             {item.title}
           </h3>
