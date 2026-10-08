@@ -117,7 +117,6 @@ export function Navbar({ user = null, profile = null }) {
                   </div>
                   <span>{profile?.name || "هەژمارەکەم"}</span>
                 </Link>
-                <SignOutButton />
               </div>
             ) : (
               <Link

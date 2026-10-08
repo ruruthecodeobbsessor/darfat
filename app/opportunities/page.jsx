@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Calendar, MapPin, Briefcase, Lightbulb, Sparkles, ArrowLeft } from 'lucide-react';
 
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { OPPORTUNITY_TYPES } from "@/lib/constants";
 
 export const metadata = {
   title: "دەرفەتەکان | دەرفەت",
@@ -68,8 +69,6 @@ async function OpportunityResults({ searchParams }) {
     return b.matchScore - a.matchScore;
   });
 
-  const types = ["hackathon", "volunteer", "competition", "workshop", "club"];
-
   return (
     <>
       {/* Filters */}
@@ -79,10 +78,10 @@ async function OpportunityResults({ searchParams }) {
             هەمووی
           </span>
         </Link>
-        {types.map(t => (
-          <Link key={t} href={`/opportunities?type=${t}`}>
-            <span className={`px-4 py-2 rounded-full border border-orange-200 text-sm whitespace-nowrap ${typeFilter === t ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-50'}`}>
-              {t}
+        {Object.values(OPPORTUNITY_TYPES).map(t => (
+          <Link key={t.id} href={`/opportunities?type=${t.id}`}>
+            <span className={`px-4 py-2 rounded-full border border-orange-200 text-sm whitespace-nowrap ${typeFilter === t.id ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-50'}`}>
+              {t.label}
             </span>
           </Link>
         ))}

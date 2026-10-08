@@ -2,7 +2,8 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft } from "lucide-react";
+import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft, Tag } from "lucide-react";
+import { OPPORTUNITY_TYPES } from "@/lib/constants";
 
 export function SpotlightCard({ item }) {
   const divRef = useRef(null);
@@ -75,6 +76,12 @@ export function SpotlightCard({ item }) {
           </h3>
           
           <div className="flex flex-wrap gap-2 text-[12px] font-semibold text-slate-600">
+            {item.type && OPPORTUNITY_TYPES[item.type] && (
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl shadow-sm border ${OPPORTUNITY_TYPES[item.type].badgeClass}`}>
+                <Tag className="w-3.5 h-3.5" />
+                <span className="line-clamp-1">{OPPORTUNITY_TYPES[item.type].label}</span>
+              </div>
+            )}
             {item.organizer && (
               <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-100 px-3 py-2 rounded-xl shadow-sm transition-colors">
                 <Briefcase className="w-3.5 h-3.5 text-orange-500 shrink-0" />

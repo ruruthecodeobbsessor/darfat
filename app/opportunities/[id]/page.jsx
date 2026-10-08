@@ -2,6 +2,7 @@ import { query } from '@/lib/db';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-react';
+import { OPPORTUNITY_TYPES } from '@/lib/constants';
 
 import { connection } from 'next/server';
 
@@ -41,9 +42,15 @@ export default async function OpportunityDetail({ params }) {
       
       <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
         <div className="mb-6">
-          <span className="text-xs font-medium bg-orange-100 text-orange-800 px-3 py-1.5 rounded-full mb-4 inline-block">
-            {opp.type || 'نەزانراو'}
-          </span>
+          {opp.type && OPPORTUNITY_TYPES[opp.type] ? (
+            <span className={`text-xs font-medium px-3 py-1.5 rounded-full mb-4 inline-block border ${OPPORTUNITY_TYPES[opp.type].badgeClass}`}>
+              {OPPORTUNITY_TYPES[opp.type].label}
+            </span>
+          ) : (
+            <span className="text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 px-3 py-1.5 rounded-full mb-4 inline-block">
+              {opp.type || 'نەزانراو'}
+            </span>
+          )}
           <h1 className="text-3xl font-bold text-slate-900 mb-4">{opp.title}</h1>
           <div className="flex flex-wrap gap-4 text-sm text-slate-600">
             <div className="flex items-center gap-2">
