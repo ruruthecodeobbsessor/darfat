@@ -8,6 +8,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 
 export const instant = false;
 
+
 export const metadata = {
   title: "دەرفەتەکان | دەرفەت",
   description: "گەڕان و فلتەرکردنی دەرفەتەکانی کوردستان لە هاکاسۆن، وۆرکشۆپ، خول و خۆبەخشی.",
