@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Heart } from "lucide-react";
+import { Compass, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -9,13 +9,13 @@ export function Footer() {
           {/* Logo & description */}
           <div className="flex flex-col items-center md:items-start text-center md:text-start gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow-xs">
+                <Compass className="w-4 h-4" strokeWidth={2.2} />
               </div>
               <span className="text-lg font-extrabold text-slate-900">دەرفەت (Derfet)</span>
             </div>
             <p className="text-xs text-slate-500 max-w-sm">
-              پلاتفۆرمی زیرەکی گەشەپێدان بۆ گەنجانی کوردستان. هەموو دەرفەتەکان لە یەک شوێن بە هاوکاری ژیریی دەستکرد.
+              پلاتفۆرمی دۆزینەوەی دەرفەت و گەشەپێدان بۆ گەنجانی کوردستان. هەموو چالاکی و دەرفەتەکان لە یەک شوێن.
             </p>
           </div>
 

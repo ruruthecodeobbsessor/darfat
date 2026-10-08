@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { 
-  Sparkles, 
   ArrowLeft, 
   Compass, 
   Users, 
@@ -9,7 +8,9 @@ import {
   Search, 
   Calendar, 
   MapPin, 
-  Briefcase 
+  Briefcase,
+  Target,
+  Lightbulb
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,13 +58,13 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 bg-gradient-to-b from-orange-50/50 via-white to-slate-50/60 border-b border-slate-200/60">
-        <div className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.12] -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-100/30 via-transparent to-transparent -z-10" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Top Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/80 text-orange-800 text-xs sm:text-sm font-semibold mb-6 border border-orange-200 shadow-sm animate-fade-in">
-            <Sparkles className="w-4 h-4 text-orange-600 fill-orange-500" />
-            <span>پلاتفۆرمی زیرەکی گەشەپێدان بۆ لاوانی کوردستان و عێراق</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/80 text-orange-800 text-xs sm:text-sm font-semibold mb-6 border border-orange-200 shadow-xs animate-fade-in">
+            <Compass className="w-4 h-4 text-orange-600" />
+            <span>پلاتفۆرمی گەشەپێدان و دۆزینەوەی دەرفەت بۆ لاوانی کوردستان و عێراق</span>
           </div>
 
           {/* Heading */}
@@ -136,9 +137,9 @@ export default function HomePage() {
             {/* Feature 1 */}
             <Card hover className="relative overflow-hidden border-orange-100">
               <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-4 shadow-md shadow-orange-500/20">
-                <Sparkles className="w-6 h-6" />
+                <Target className="w-6 h-6" />
               </div>
-              <CardTitle className="text-lg mb-2">هاوتاکردنی زیرەک</CardTitle>
+              <CardTitle className="text-lg mb-2">هاوتاکردنی تواناکان</CardTitle>
               <CardDescription className="text-xs leading-relaxed">
                 ژیریی دەستکرد دەرفەتەکان هەڵدەسەنگێنێت و بە ڕێژەی لەسەدا (%) و بە هۆکارێکی ڕوون پێت دەڵێت بۆچی بۆت دەگونجێت.
               </CardDescription>
@@ -239,9 +240,9 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* AI Reason Box */}
+                    {/* Recommendation Reason Box */}
                     <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-orange-900 mb-4 flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+                      <Lightbulb className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
                       <p className="leading-relaxed">{item.aiReason}</p>
                     </div>
 

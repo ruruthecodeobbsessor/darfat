@@ -4,16 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  Sparkles, 
+  Compass, 
   Menu, 
   X, 
-  Compass, 
+  Briefcase, 
   Users, 
   CheckSquare, 
   User, 
   ShieldCheck, 
-  LogOut,
-  LogIn
+  LogOut, 
+  LogIn 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
@@ -28,7 +28,7 @@ export function Navbar({ user = null, profile = null }) {
   const getIcon = (href) => {
     switch (href) {
       case "/opportunities":
-        return <Compass className="w-4 h-4" />;
+        return <Briefcase className="w-4 h-4" />;
       case "/people":
         return <Users className="w-4 h-4" />;
       case "/tasks":
@@ -51,22 +51,22 @@ export function Navbar({ user = null, profile = null }) {
               className="flex items-center gap-2.5 font-bold text-xl text-slate-900 group"
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <Sparkles className="w-5 h-5" />
+                <Compass className="w-5 h-5" strokeWidth={2.2} />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
                   دەرفەت
                 </span>
                 <span className="text-[10px] text-slate-400 font-medium -mt-1">
-                  Derfet AI
+                  پلاتفۆرمی دەرفەت
                 </span>
               </div>
             </Link>
 
-            {/* AI badge */}
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-600 border border-orange-200/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-              پلاتفۆرمی زیرەک
+            {/* Platform badge */}
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-orange-50 text-orange-700 border border-orange-200/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+              پلاتفۆرمی لاوان
             </span>
           </div>
 
