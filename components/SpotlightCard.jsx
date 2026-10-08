@@ -90,7 +90,7 @@ export function SpotlightCard({ item }) {
             {(item.date || item.deadline) && (
               <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-100 px-3 py-2 rounded-xl shadow-sm transition-colors">
                 <Calendar className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                <span>{item.date || new Date(item.deadline).toLocaleDateString('ku-IQ')}</span>
+                <span suppressHydrationWarning>{item.date || String(item.deadline).split('T')[0]}</span>
               </div>
             )}
           </div>
