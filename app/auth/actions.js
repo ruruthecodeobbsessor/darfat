@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient, clearAuthCookies } from "@/lib/supabase/server";
 import { readProfile } from "@/lib/auth/server";
 import { getSupabaseConfig, REMEMBER_COOKIE, sessionCookieOptions } from "@/lib/auth/config";
-import { roleDestination } from "@/lib/auth/routing";
+import { homeFor } from "@/lib/auth/routing";
 import { authErrorMessage, validateCredentials } from "@/lib/auth/validation";
 
 async function authenticate(formData, registering) {
@@ -49,7 +49,7 @@ async function authenticate(formData, registering) {
       await clearAuthCookies();
       return { message: "هەژمارەکەت هەیە، بەڵام زانیارییەکانی بارنەکرا. تکایە دووبارە هەوڵ بدەرەوە." };
     }
-    return { success: true, destination: roleDestination(profile.role), message: registering ? "هەژمارەکەت بە سەرکەوتوویی دروستکرا." : "بە سەرکەوتوویی چوویتە ژوورەوە." };
+    return { success: true, destination: homeFor(profile), message: registering ? "هەژمارەکەت بە سەرکەوتوویی دروستکرا." : "بە سەرکەوتوویی چوویتە ژوورەوە." };
   } catch {
     return { message: "نەتوانرا پەیوەندی بکرێت. تکایە دووبارە هەوڵ بدەرەوە." };
   }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient, clearAuthCookies } from "@/lib/supabase/server";
 import { readProfile } from "@/lib/auth/server";
-import { roleDestination } from "@/lib/auth/routing";
+import { homeFor } from "@/lib/auth/routing";
 import { cookies } from "next/headers";
 import { REMEMBER_COOKIE, sessionCookieOptions } from "@/lib/auth/config";
 
@@ -15,7 +15,7 @@ export async function GET(request) {
       if (!error && data.user) {
         (await cookies()).set(REMEMBER_COOKIE, "0", sessionCookieOptions());
         const profile = await readProfile(supabase, data.user.id);
-        destination = roleDestination(profile.role);
+        destination = homeFor(profile);
       }
     }
   } catch {
