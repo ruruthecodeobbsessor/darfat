@@ -10,6 +10,7 @@ import { ProfileHeader } from "@/components/social/ProfileHeader";
 import { Spinner } from "@/components/ui/spinner";
 
 export const metadata = { title: "پڕۆفایل | دەرفەت" };
+export const instant = false;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
