@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-react';
 import { OPPORTUNITY_TYPES } from '@/lib/constants';
+import { SlideUp, StaggerContainer, StaggerItem } from '@/components/ui/animations';
 
 import { connection } from 'next/server';
 
@@ -40,89 +41,91 @@ export default async function OpportunityDetail({ params }) {
         </Link>
       </div>
       
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-        <div className="mb-6">
-          {opp.type && OPPORTUNITY_TYPES[opp.type] ? (
-            <span className={`text-xs font-medium px-3 py-1.5 rounded-full mb-4 inline-block border ${OPPORTUNITY_TYPES[opp.type].badgeClass}`}>
-              {OPPORTUNITY_TYPES[opp.type].label}
-            </span>
-          ) : (
-            <span className="text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 px-3 py-1.5 rounded-full mb-4 inline-block">
-              {opp.type || 'نەزانراو'}
-            </span>
-          )}
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">{opp.title}</h1>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            <div className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-slate-400" />
-              <span>{opp.organizer || 'نەزانراو'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-slate-400" />
-              <span>{opp.location || 'نەزانراو'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-slate-400" />
-              <span>{opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات'}</span>
-            </div>
-          </div>
-        </div>
-
-        <hr className="my-8 border-slate-100" />
-
-        <div className="space-y-8">
-          <section>
-            <h2 className="text-xl font-bold text-slate-900 mb-3">وردەکارییەکان</h2>
-            <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.description || 'زانیاری زیاتر بەردەست نییە.'}</p>
-          </section>
-
-          {opp.required_skills && opp.required_skills.length > 0 && (
-            <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">توانا داواکراوەکان</h2>
-              <div className="flex flex-wrap gap-2">
-                {opp.required_skills.map((skill, idx) => (
-                  <span key={idx} className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm text-slate-700">
-                    {skill}
-                  </span>
-                ))}
+      <SlideUp className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+        <StaggerContainer>
+          <StaggerItem className="mb-6">
+            {opp.type && OPPORTUNITY_TYPES[opp.type] ? (
+              <span className={`text-xs font-medium px-3 py-1.5 rounded-full mb-4 inline-block border ${OPPORTUNITY_TYPES[opp.type].badgeClass}`}>
+                {OPPORTUNITY_TYPES[opp.type].label}
+              </span>
+            ) : (
+              <span className="text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 px-3 py-1.5 rounded-full mb-4 inline-block">
+                {opp.type || 'نەزانراو'}
+              </span>
+            )}
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">{opp.title}</h1>
+            <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-slate-400" />
+                <span>{opp.organizer || 'نەزانراو'}</span>
               </div>
-            </section>
-          )}
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-slate-400" />
+                <span>{opp.location || 'نەزانراو'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-slate-400" />
+                <span>{opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات'}</span>
+              </div>
+            </div>
+          </StaggerItem>
 
-          {opp.benefits && (
-            <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">سوودەکان</h2>
-              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.benefits}</p>
-            </section>
-          )}
+          <hr className="my-8 border-slate-100" />
 
-          {opp.how_to_apply && (
-            <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">چۆنیەتی بەشداریکردن</h2>
-              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.how_to_apply}</p>
-            </section>
-          )}
-        </div>
+          <div className="space-y-8">
+            <StaggerItem>
+              <h2 className="text-xl font-bold text-slate-900 mb-3">وردەکارییەکان</h2>
+              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.description || 'زانیاری زیاتر بەردەست نییە.'}</p>
+            </StaggerItem>
 
-        <div className="mt-10 flex flex-col sm:flex-row gap-4">
-          <form action={async () => {
-            'use server';
-            await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
-          }}>
-            <button type="submit" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
-              <CheckCircle className="w-5 h-5" />
-              بەشدارم
-            </button>
-          </form>
+            {opp.required_skills && opp.required_skills.length > 0 && (
+              <StaggerItem>
+                <h2 className="text-xl font-bold text-slate-900 mb-3">توانا داواکراوەکان</h2>
+                <div className="flex flex-wrap gap-2">
+                  {opp.required_skills.map((skill, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm text-slate-700">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </StaggerItem>
+            )}
 
-          {opp.link && (
-            <a href={opp.link} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
-              <ExternalLink className="w-5 h-5" />
-              لینکی فەرمی
-            </a>
-          )}
-        </div>
-      </div>
+            {opp.benefits && (
+              <StaggerItem>
+                <h2 className="text-xl font-bold text-slate-900 mb-3">سوودەکان</h2>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.benefits}</p>
+              </StaggerItem>
+            )}
+
+            {opp.how_to_apply && (
+              <StaggerItem>
+                <h2 className="text-xl font-bold text-slate-900 mb-3">چۆنیەتی بەشداریکردن</h2>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.how_to_apply}</p>
+              </StaggerItem>
+            )}
+          </div>
+
+          <StaggerItem className="mt-10 flex flex-col sm:flex-row gap-4">
+            <form action={async () => {
+              'use server';
+              await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
+            }}>
+              <button type="submit" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+                <CheckCircle className="w-5 h-5" />
+                بەشدارم
+              </button>
+            </form>
+
+            {opp.link && (
+              <a href={opp.link} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+                <ExternalLink className="w-5 h-5" />
+                لینکی فەرمی
+              </a>
+            )}
+          </StaggerItem>
+        </StaggerContainer>
+      </SlideUp>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Calendar, MapPin, Briefcase, Lightbulb, Sparkles, ArrowLeft } from 'luc
 
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
+import { SlideUp } from "@/components/ui/animations";
 
 export const metadata = {
   title: "دەرفەتەکان | دەرفەت",
@@ -18,7 +19,9 @@ export const metadata = {
 export default function OpportunitiesPage({ searchParams }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">دەرفەتەکان</h1>
+      <SlideUp>
+        <h1 className="text-3xl font-bold text-slate-900 mb-8">دەرفەتەکان</h1>
+      </SlideUp>
       <Suspense fallback={<Spinner text="دۆزینەوەی دەرفەتە گونجاوەکان..." />}>
         <OpportunityResults searchParams={searchParams} />
       </Suspense>
@@ -72,7 +75,7 @@ async function OpportunityResults({ searchParams }) {
   return (
     <>
       {/* Filters */}
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+      <SlideUp delay={0.1} className="flex gap-2 mb-8 overflow-x-auto pb-2">
         <Link href="/opportunities">
           <span className={`px-4 py-2 rounded-full border border-orange-200 text-sm whitespace-nowrap ${!typeFilter ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-50'}`}>
             هەمووی
@@ -85,7 +88,7 @@ async function OpportunityResults({ searchParams }) {
             </span>
           </Link>
         ))}
-      </div>
+      </SlideUp>
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">

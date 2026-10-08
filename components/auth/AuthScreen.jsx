@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { getIdentity } from "@/lib/auth/server";
 import { homeFor } from "@/lib/auth/routing";
 import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth/config";
+import { SlideUp } from "@/components/ui/animations";
 
 const notices = {
   "signed-out": "بە سەرکەوتوویی چوویتە دەرەوە.",
@@ -35,7 +36,7 @@ async function AuthContent({ mode, searchParams }) {
 export function AuthScreen({ mode, searchParams }) {
   const registering = mode === "register";
   return <section className="flex flex-1 items-center justify-center bg-gradient-to-b from-orange-50/70 via-white to-slate-50 px-4 py-12 sm:py-16">
-    <div className="w-full max-w-md">
+    <SlideUp className="w-full max-w-md">
       <div className="mb-7 text-center">
         <div className="mx-auto mb-4 flex items-center justify-center">
           <img src="/icon.png" alt="دەرفەت - Darfat" className="w-20 h-20 object-contain" />
@@ -48,6 +49,6 @@ export function AuthScreen({ mode, searchParams }) {
           <AuthContent mode={mode} searchParams={searchParams} />
         </Suspense>
       </Card>
-    </div>
+    </SlideUp>
   </section>;
 }

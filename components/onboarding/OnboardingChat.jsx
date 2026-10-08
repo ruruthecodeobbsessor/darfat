@@ -6,6 +6,8 @@ import { ArrowLeft, Cake, MapPin, RotateCcw, Send, Sparkles } from "lucide-react
 import { ONBOARDING_FIELDS } from "@/lib/onboarding";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { SlideUp } from "@/components/ui/animations";
 
 const NETWORK_ERROR = "پەیوەندی بە سێرڤەرەوە نەکرا. تکایە دووبارە هەوڵ بدەرەوە.";
 
@@ -91,7 +93,7 @@ export function OnboardingChat() {
   const progress = done ? 100 : Math.min(95, Math.round((answered / ONBOARDING_FIELDS.length) * 100));
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10">
+    <SlideUp className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-10">
       <div className="mb-4">
         <div className="mb-3 flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20">
@@ -186,7 +188,7 @@ export function OnboardingChat() {
           )}
         </div>
       </div>
-    </div>
+    </SlideUp>
   );
 }
 
@@ -241,7 +243,12 @@ function SummaryTags({ label, items = [], tone }) {
 function Bubble({ role, children }) {
   const isBot = role === "assistant";
   return (
-    <div className={cn("flex", isBot ? "justify-start" : "justify-end")}>
+    <motion.div 
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className={cn("flex", isBot ? "justify-start" : "justify-end")}
+    >
       <div
         className={cn(
           "max-w-[85%] whitespace-pre-line px-4 py-2.5 text-sm leading-relaxed",
@@ -250,7 +257,7 @@ function Bubble({ role, children }) {
       >
         {children}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
