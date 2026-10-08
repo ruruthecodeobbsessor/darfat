@@ -40,6 +40,11 @@ export function AuthForm({ mode }) {
         <div ref={summary} tabIndex={-1} role={state.success ? "status" : "alert"}
           className={`rounded-xl border p-4 text-sm leading-relaxed focus-ring ${state.success ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800"}`}>
           <p>{state.message}</p>
+          {registering && state.nextAction === "login" && <Link href="/login"
+            className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold text-orange-800 underline underline-offset-4 focus-ring">
+            <LogIn aria-hidden="true" className="h-4 w-4" />
+            <span>بچۆ ژوورەوە</span>
+          </Link>}
           {state.errors && <ul className="mt-2 space-y-1">
             {Object.entries(state.errors).map(([field, message]) => <li key={field}><a className="underline underline-offset-4" href={`#${field}`}>{message}</a></li>)}
           </ul>}

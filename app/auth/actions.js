@@ -39,14 +39,20 @@ async function authenticate(formData, registering) {
       result = await supabase.auth.signInWithPassword({ email, password });
     }
     if (result.error) {
-      console.error("Supabase Auth Error:", result.error);
-      return { message: authErrorMessage(result.error) };
+      const existingAccount = registering && (
+        ["user_already_exists", "email_exists"].includes(result.error.code)
+        || /user already registered/i.test(result.error.message || "")
+      );
+      return {
+        message: authErrorMessage(result.error),
+        ...(existingAccount ? { nextAction: "login" } : {}),
+      };
     }
     if (!result.data.session || !result.data.user) return { message: "نەتوانرا چوونەژوورەوە تەواو بکرێت. تکایە دووبارە هەوڵ بدەرەوە." };
     const cookieStore = await cookies();
     cookieStore.set(REMEMBER_COOKIE, remember ? "1" : "0", sessionCookieOptions({}, remember));
     let profile;
-    try { profile = await readProfile(supabase, result.data.user.id); }
+    try { profile = await readProfile(supabase, result.data.user); }
     catch {
       await supabase.auth.signOut({ scope: "local" });
       await clearAuthCookies();

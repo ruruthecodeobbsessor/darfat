@@ -28,7 +28,7 @@ async function AuthContent({ mode, searchParams }) {
     {!signedOut && (expired || notice) && <div role="alert" className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
       {expired ? <p lang="en" dir="ltr">{SESSION_EXPIRED_MESSAGE}</p> : notice}
     </div>}
-    <AuthForm mode={mode} />
+    <AuthForm key={mode} mode={mode} />
   </>;
 }
 

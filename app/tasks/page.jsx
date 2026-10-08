@@ -6,6 +6,7 @@ import { TaskWorkspace } from "@/components/tasks/TaskWorkspace";
 import { taskAIReady } from "@/lib/tasks/providers";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import { profilePreferences } from "@/lib/tasks/profile-context.mjs";
 
 export const metadata = { title: "ئەرکەکانم | دەرفەت" };
 
@@ -19,7 +20,7 @@ async function TaskContent() {
       <a href="/tasks" className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-orange-800 hover:bg-orange-50 focus-ring">دووبارە بارکردنەوە</a>
     </Card>;
   }
-  return <TaskWorkspace initialData={data} aiReady={taskAIReady()} />;
+  return <TaskWorkspace initialData={data} aiReady={taskAIReady()} preferences={profilePreferences(identity.profile)} />;
 }
 
 export default function TasksPage() {

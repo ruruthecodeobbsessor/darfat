@@ -6,16 +6,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TaskCard } from "./TaskCard";
-import { TASK_CATEGORIES, TASK_DIFFICULTIES } from "@/lib/tasks/constants";
+import { TASK_DIFFICULTIES } from "@/lib/tasks/constants";
+import { TASK_RUBRIC, PASS_SCORE } from "@/lib/tasks/rubric.mjs";
 
 async function taskRequest(path, body) {
   try {
     const response = await fetch(path, {
       method: body === undefined ? "GET" : "POST",
-      headers: body === undefined ? {} : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      headers: body === undefined || body instanceof FormData ? {} : { "Content-Type": "application/json" },
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
       cache: "no-store",
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(140000),
     });
     if (response.status === 401) {
       window.location.replace("/login?reason=expired");
@@ -26,12 +27,15 @@ async function taskRequest(path, body) {
   } catch { return { ok: false, message: "پەیوەندی دوا کەوت. تکایە دووبارە هەوڵ بدەرەوە؛ زانیارییە پارێزراوەکانت لە مێژوودا دەردەکەون." }; }
 }
 
-export function TaskWorkspace({ initialData, aiReady }) {
+export function TaskWorkspace({ initialData, aiReady, preferences }) {
   const [active, setActive] = useState(initialData.active);
   const [history, setHistory] = useState(initialData.history);
   const [hasMore, setHasMore] = useState(initialData.hasMore);
   const [summary, setSummary] = useState(initialData.summary);
-  const [category, setCategory] = useState("general");
+  const profileOptions = [...new Set([...preferences.interests, ...preferences.skills])];
+  const [focus, setFocus] = useState(profileOptions[0] || "");
+  const interest = preferences.interests.includes(focus) ? focus : "";
+  const skill = preferences.skills.includes(focus) ? focus : "";
   const [difficulty, setDifficulty] = useState("beginner");
   const [busy, setBusy] = useState(null);
   const [notice, setNotice] = useState(null);
@@ -61,7 +65,7 @@ export function TaskWorkspace({ initialData, aiReady }) {
     pending.current = true;
     setBusy("generate");
     setNotice(null);
-    const result = await taskRequest("/api/tasks/generate", { category, difficulty });
+    const result = await taskRequest("/api/tasks/generate", { interest, skill, difficulty });
     if (result.ok) {
       setActive((current) => [result.task, ...current.filter((item) => item.id !== result.task.id)]);
       showNotice("ئەرکێکی نوێ بۆت دروستکرا. کاتێک ئامادە بوویت دەست پێ بکە.");
@@ -80,7 +84,7 @@ export function TaskWorkspace({ initialData, aiReady }) {
     if (result.ok) {
       if (["submitted", "reviewed"].includes(result.task.status)) {
         const previous = [...active, ...history].find((item) => item.id === id);
-        if (result.task.feedback && !previous?.feedback) {
+        if (result.task.feedback?.score != null && !previous?.feedback) {
           setSummary((current) => ({ points: current.points + result.task.feedback.earned_points, reviewed: current.reviewed + 1 }));
         }
         setActive((current) => current.filter((item) => item.id !== id));
@@ -117,14 +121,15 @@ export function TaskWorkspace({ initialData, aiReady }) {
       <div className="mb-5 flex items-start gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-orange-200 bg-orange-50 text-orange-700"><Sparkles aria-hidden="true" className="h-5 w-5" /></span>
         <div><h2 className="text-lg font-bold text-slate-900">ئەرکێکی نوێ دروست بکە</h2>
-          <p className="mt-1 text-sm leading-relaxed text-slate-500">بۆ ئێستا جۆرێک هەڵبژێرە؛ ئەرکێکی کرداری لەگەڵ پێوەرەکانی تەواوکردن وەربگرە.</p>
+          <p className="mt-1 text-sm leading-relaxed text-slate-500">حەز و لێهاتووییەکانی پرۆفایلەکەت هەڵبژێرە؛ ژیریی دەستکرد جۆری ئەرکەکە دیاری دەکات.</p>
         </div>
       </div>
       <form onSubmit={generate} className="grid items-end gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]" aria-busy={busy === "generate"}>
-        <div><label htmlFor="task-category" className="mb-2 block text-sm font-semibold text-slate-700">جۆری ئەرک (کاتی)</label>
-          <select id="task-category" value={category} onChange={(event) => setCategory(event.target.value)} disabled={Boolean(busy)}
+        <div><label htmlFor="task-focus" className="mb-2 block text-sm font-semibold text-slate-700">حەز و لێهاتوویی</label>
+          <select id="task-focus" value={focus} onChange={(event) => setFocus(event.target.value)} disabled={Boolean(busy) || !profileOptions.length}
             className="h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 focus-ring disabled:opacity-60">
-            {TASK_CATEGORIES.map((item) => <option key={item.value} value={item.value}>{item.name} · {item.label}</option>)}
+            <option value="">هەڵبژاردنێک بکە</option>
+            {profileOptions.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
         <div><label htmlFor="task-difficulty" className="mb-2 block text-sm font-semibold text-slate-700">سەختی ئەرک</label>
@@ -133,11 +138,17 @@ export function TaskWorkspace({ initialData, aiReady }) {
             {TASK_DIFFICULTIES.map((item) => <option key={item.value} value={item.value}>{item.name} · {item.label}</option>)}
           </select>
         </div>
-        <Button type="submit" size="lg" disabled={!aiReady || Boolean(busy)} isLoading={busy === "generate"}
+        <Button type="submit" size="lg" disabled={!aiReady || Boolean(busy) || (!interest && !skill)} isLoading={busy === "generate"}
           className="sm:col-span-2 lg:col-span-1 bg-orange-700 hover:bg-orange-800">
           <Sparkles aria-hidden="true" className="h-5 w-5" /> <span lang="en">Generate Task</span>
         </Button>
       </form>
+      {!preferences.interests.length && !preferences.skills.length && <p role="status" className="mt-4 text-sm text-amber-900">حەز و لێهاتووییەکانت لە <a href="/profile" className="underline underline-offset-4 focus-ring">پرۆفایلەکەت</a> زیاد بکە بۆ دروستکردنی ئەرکی تایبەت بە تۆ.</p>}
+      <details className="mt-5 rounded-xl bg-slate-50 px-4 text-sm">
+        <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-slate-700 focus-ring">پێوەری هەڵسەنگاندن · 100 خاڵ</summary>
+        <dl className="space-y-2 pb-4">{TASK_RUBRIC.map(item => <div key={item.id} className="flex justify-between gap-4 text-slate-600"><dt lang="en" dir="ltr">{item.label}</dt><dd>{item.max_points}</dd></div>)}</dl>
+        <p className="pb-4 text-xs text-slate-500" lang="en" dir="ltr">Passing score: {PASS_SCORE}/100. Earned reward points = task points × score ÷ 100, rounded.</p>
+      </details>
       {!aiReady && <p role="status" className="mt-4 text-sm text-amber-800">ژیریی دەستکرد هێشتا ئامادە نییە. تکایە دواتر هەوڵ بدەرەوە.</p>}
     </Card>
 
@@ -150,7 +161,7 @@ export function TaskWorkspace({ initialData, aiReady }) {
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-800"><Star aria-hidden="true" className="h-4 w-4" /> {summary.points} خاڵی بەدەستهاتوو</span>
       </div>
       {active.length === 0 ? <EmptyState icon={CheckSquare} title={<span lang="en" dir="ltr">Your personalized tasks will appear here.</span>}
-        description="جۆر و سەختی ئەرکەکە هەڵبژێرە، پاشان Generate Task دابگرە بۆ دەستپێکردن." />
+        description="حەز، لێهاتوویی و سەختی ئەرکەکە هەڵبژێرە، پاشان Generate Task دابگرە." />
         : <div ref={firstCard} tabIndex={-1} className="grid items-start gap-5 rounded-2xl focus-ring lg:grid-cols-2">
           {active.map((assignment) => <TaskCard key={assignment.id} assignment={assignment} busy={busy === assignment.id} onAction={action} />)}
         </div>}

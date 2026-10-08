@@ -24,7 +24,9 @@
     "react-dom": "19.3.0",
     "rss-parser": "^3.13.0",
     "server-only": "0.0.1",
-    "tailwind-merge": "^3.7.0"
+    "sharp": "0.35.5",
+    "tailwind-merge": "^3.7.0",
+    "yauzl": "3.4.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
