@@ -86,12 +86,12 @@ function AvatarUploader({ name, url, onUploaded }) {
   );
 }
 
-function TagList({ items }) {
+function TagList({ items, tone = "border-slate-200 bg-slate-50 text-slate-700" }) {
   if (!items.length) return <p className="mt-2 text-sm text-slate-400">هێشتا هیچ شتێک زیاد نەکراوە.</p>;
   return (
     <ul className="mt-3 flex flex-wrap gap-2">
       {items.map((item) => (
-        <li key={item} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700">
+        <li key={item} className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${tone}`}>
           {item}
         </li>
       ))}
@@ -105,7 +105,7 @@ export default function ProfileExperience({ initialProfile }) {
   const [state, action, pending] = useActionState(async (previous, formData) => {
     const result = await updateProfile(previous, formData);
     if (result.success) {
-      setProfile((current) => ({ ...current, ...result.profile, city: result.profile.city ?? "", bio: result.profile.bio ?? "" }));
+      setProfile((current) => ({ ...current, ...result.profile, city: result.profile.city ?? "", bio: result.profile.bio ?? "", headline: result.profile.headline ?? "" }));
       setIsEditing(false);
     }
     return result;
@@ -155,6 +155,7 @@ export default function ProfileExperience({ initialProfile }) {
                   پڕۆفایل ئامادەیە
                 </div>
                 <h2 className="break-words text-2xl font-extrabold text-slate-950">{profile.name || "بێ ناو"}</h2>
+                {profile.headline && <p className="mt-1 text-base font-medium text-orange-800">{profile.headline}</p>}
                 <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-600">
                   {profile.city && (
                     <span className="flex items-center gap-1.5">
@@ -189,6 +190,11 @@ export default function ProfileExperience({ initialProfile }) {
                   <ProfileField id="name" label="ناوی تەواو" error={errors.name}>
                     <input id="name" name="name" defaultValue={profile.name} maxLength={100} autoComplete="name" className={fieldClass(Boolean(errors.name))} required />
                   </ProfileField>
+                  <div className="sm:col-span-2">
+                    <ProfileField id="headline" label="ناونیشانی کورت" hint="یەک دێڕ دەربارەی خۆت، بۆ نموونە: خوێندکاری کۆمپیوتەر و دیزاینەری UI">
+                      <input id="headline" name="headline" defaultValue={profile.headline} maxLength={80} className={fieldClass()} />
+                    </ProfileField>
+                  </div>
                   <ProfileField id="city" label="شار">
                     <input id="city" name="city" defaultValue={profile.city} maxLength={60} list="city-options" placeholder="شارەکەت" className={fieldClass()} />
                     <datalist id="city-options">
@@ -241,7 +247,7 @@ export default function ProfileExperience({ initialProfile }) {
                     <Heart className="h-4 w-4 text-orange-700" aria-hidden="true" />
                     حەز و ئارەزووەکان
                   </h3>
-                  <TagList items={profile.interests} />
+                  <TagList items={profile.interests} tone="border-orange-200 bg-orange-50 text-orange-800" />
                 </section>
                 <section>
                   <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">

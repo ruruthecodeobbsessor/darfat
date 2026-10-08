@@ -1,36 +1,29 @@
 import { authorizeRequest } from "@/lib/auth/server";
 import { createClient } from "@/lib/supabase/server";
-import { chatOnboarding } from "@/lib/ai";
-import { cleanMessages, cleanProfile, scriptedTurn } from "@/lib/onboarding";
+import { isOnboardingAiConfigured, onboardingTurn, summarizeOnboardingProfile } from "@/lib/ai";
+import { CITIES } from "@/lib/constants";
+import {
+  INTEREST_CATEGORIES,
+  ONBOARDING_FIELDS,
+  cleanMessages,
+  cleanProfile,
+  cleanState,
+  cleanSuggestions,
+  questionFor,
+  quickRepliesFor,
+  scriptedTurn,
+} from "@/lib/onboarding";
 
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
+const STANDARD_CITIES = CITIES.filter((city) => city !== "سەرجەم شارەکان");
+// How many follow-ups a vague answer gets before we accept it and move on.
+const MAX_FOLLOW_UPS = { interests: 2, skills: 1 };
 
-// One onboarding chat turn. When every answer is collected, save it to profiles.
-export async function POST(request) {
-  const { identity, status } = await authorizeRequest();
-  if (!identity) return Response.json({ error: "unauthorized" }, { status, headers: noStore });
+const json = (body, status = 200) => Response.json(body, { status, headers: noStore });
+const aiFailed = () =>
+  json({ error: "ai_failed", reply: "ببورە، یاریدەدەرەکە ئێستا وەڵام ناداتەوە. تکایە دووبارە هەوڵ بدەرەوە." }, 503);
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ error: "bad_request" }, { status: 400, headers: noStore });
-  }
-  const messages = cleanMessages(body?.messages);
-  const knownName = identity.profile.name;
-
-  let turn;
-  try {
-    turn = await chatOnboarding(messages, knownName);
-  } catch (error) {
-    // No AI key or AI failure: keep the demo working with the scripted interview.
-    console.error("Onboarding AI unavailable, using scripted questions:", error.message);
-    turn = scriptedTurn(messages, knownName);
-  }
-
-  if (!turn.done) return Response.json({ reply: turn.reply, done: false }, { headers: noStore });
-
-  const profile = cleanProfile(turn.profile ?? {});
+async function saveProfile(userId, profile) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
@@ -40,18 +33,103 @@ export async function POST(request) {
       age: profile.age,
       interests: profile.interests,
       skills: profile.skills,
+      headline: profile.headline,
       bio: profile.bio,
       onboarding_completed: true,
     })
-    .eq("id", identity.user.id);
+    .eq("id", userId);
+  if (error) console.error("Saving onboarding profile failed:", error.message);
+  return !error;
+}
 
-  if (error) {
-    console.error("Saving onboarding profile failed:", error.message);
-    return Response.json(
-      { error: "save_failed", reply: "ببورە، پاشەکەوتکردنی زانیارییەکانت سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەرەوە." },
-      { status: 500, headers: noStore }
-    );
+const saveFailed = () =>
+  json({ error: "save_failed", reply: "ببورە، پاشەکەوتکردنی زانیارییەکانت سەرکەوتوو نەبوو. تکایە دووبارە هەوڵ بدەرەوە." }, 500);
+
+// One onboarding turn. The route walks the questions in order; the AI understands each answer,
+// helps with vague ones, and finally writes a standardized profile that is saved to profiles.
+export async function POST(request) {
+  const { identity, status } = await authorizeRequest();
+  if (!identity) return json({ error: "unauthorized" }, status);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "bad_request" }, 400);
+  }
+  const messages = cleanMessages(body?.messages);
+  const knownName = identity.profile.name;
+
+  // No AI key at all: the scripted interview keeps onboarding working.
+  if (!isOnboardingAiConfigured()) {
+    const turn = scriptedTurn(messages, knownName);
+    if (!turn.done) return json({ reply: turn.reply, suggestions: cleanSuggestions(turn.suggestions), done: false });
+    if (!(await saveProfile(identity.user.id, turn.profile))) return saveFailed();
+    return json({ reply: turn.reply, done: true, profile: { ...turn.profile, name: turn.profile.name || knownName } });
   }
 
-  return Response.json({ reply: turn.reply, done: true }, { headers: noStore });
+  const state = cleanState(body?.state);
+  const lastMessage = messages.at(-1);
+
+  // Opening message.
+  if (!lastMessage || lastMessage.role !== "user" || state.step >= ONBOARDING_FIELDS.length) {
+    const first = scriptedTurn([], knownName);
+    return json({ reply: first.reply, suggestions: cleanSuggestions(first.suggestions), done: false, state: { step: 0, attempt: 0, collected: {} } });
+  }
+
+  const field = ONBOARDING_FIELDS[state.step];
+  const nextField = ONBOARDING_FIELDS[state.step + 1] ?? null;
+
+  let turn;
+  try {
+    turn = await onboardingTurn({
+      field,
+      answer: lastMessage.text,
+      nextField,
+      nextQuestion: nextField ? questionFor(nextField) : null,
+      collected: state.collected,
+      knownName,
+      attempt: state.attempt,
+      interestCategories: INTEREST_CATEGORIES,
+    });
+  } catch (error) {
+    console.error("Onboarding AI failed:", error.message);
+    return aiFailed();
+  }
+
+  const moveOn = turn.accepted || state.attempt >= (MAX_FOLLOW_UPS[field] ?? 1);
+  if (!moveOn) {
+    return json({ reply: turn.reply, suggestions: cleanSuggestions(turn.suggestions), done: false, state: { ...state, attempt: state.attempt + 1 } });
+  }
+
+  // Keep the person's own words next to the AI's short version so the summary has full context.
+  const collected = {
+    ...state.collected,
+    [field]: turn.value && turn.value !== lastMessage.text ? `${turn.value} — ${lastMessage.text}` : lastMessage.text,
+  };
+
+  if (nextField) {
+    // If the AI was still following up but we are moving on anyway, ask the next question ourselves.
+    const reply = turn.accepted ? turn.reply : `باشە، سوپاس! ${questionFor(nextField)}`;
+    // Hand-picked quick replies for the next question; AI suggestions are used only for follow-ups.
+    const suggestions = quickRepliesFor(nextField);
+    return json({ reply, suggestions: cleanSuggestions(suggestions), done: false, state: { step: state.step + 1, attempt: 0, collected } });
+  }
+
+  // Every question answered: build the standard profile and save it.
+  let summary;
+  try {
+    summary = await summarizeOnboardingProfile(collected, { interestCategories: INTEREST_CATEGORIES, cities: STANDARD_CITIES });
+  } catch (error) {
+    console.error("Onboarding summary failed:", error.message);
+    return aiFailed();
+  }
+  const profile = cleanProfile(summary ?? {});
+  if (!(await saveProfile(identity.user.id, profile))) return saveFailed();
+
+  return json({
+    reply: "سوپاس! پڕۆفایلەکەتم ئامادە کرد. ئەمە پوختەی ئەو شتانەیە کە باست کرد: ✨",
+    done: true,
+    profile: { ...profile, name: profile.name || knownName },
+  });
 }
