@@ -56,8 +56,20 @@ export default async function OpportunitiesPage({ searchParams }) {
     return { ...opp, matchScore: match.score, aiReason: match.reason };
   });
 
-  // Sort by match score descending
-  opportunities.sort((a, b) => b.matchScore - a.matchScore);
+  // Sort by location first (Kurdish > Iraq > Other), then by match score descending
+  opportunities.sort((a, b) => {
+    const getLocScore = (loc) => {
+      if (!loc) return 3;
+      const lower = loc.toLowerCase();
+      if (lower.includes('kurdistan') || lower.includes('erbil') || lower.includes('هەولێر') || lower.includes('sulaymaniyah') || lower.includes('سلێمانی') || lower.includes('duhok') || lower.includes('دهۆک') || lower.includes('کوردستان')) return 1;
+      if (lower.includes('iraq') || lower.includes('عێراق')) return 2;
+      return 3;
+    };
+    const scoreA = getLocScore(a.location);
+    const scoreB = getLocScore(b.location);
+    if (scoreA !== scoreB) return scoreA - scoreB;
+    return b.matchScore - a.matchScore;
+  });
 
   const types = ["hackathon", "volunteer", "competition", "workshop", "club"];
 
