@@ -7,15 +7,21 @@ onboarding, opportunities, or file-upload features.
 
 ## Configuration
 
-The local `.env.local` contains the supplied `GEMINI_API_KEY` and a dedicated
-`TASK_DATABASE_URL`. Both are server-only and ignored by Git. The key was accepted
-by Gemini's read-only model-list endpoint. No automatic paid generation or account
-test was performed. Deployment needs these same environment variables, in addition
-to the existing Supabase authentication configuration.
+The local `.env.local` contains `GEMINI_API_KEY`, `GROQ_API_KEY` and a dedicated
+`TASK_DATABASE_URL`. All are server-only and ignored by Git. Both provider keys
+were accepted by their read-only model-list endpoints. No live generation or
+account test was performed. Deployment needs these same environment variables,
+in addition to the existing Supabase authentication configuration.
 
 `GEMINI_TASK_MODEL` overrides the task model; otherwise `GEMINI_MODEL` or
-`gemini-3.5-flash` is used. Requests use the API-key header and structured JSON
-output. Keys, raw provider errors, written answers and session tokens are never
+`gemini-3.5-flash` is used. Gemini is attempted first; if it fails, times out or
+returns invalid output, the same task context or submission is sent to Groq.
+`GROQ_TASK_MODEL` overrides `GROQ_MODEL` or `openai/gpt-oss-120b`. With only one
+key configured, only that provider is used. Groq uses strict structured JSON;
+server validators enforce the same field, list and score limits for both providers.
+Each saved task/review records the actual provider and model in `ai_model`.
+Requests use key headers and structured JSON output. Keys, raw provider errors,
+written answers and session tokens are never
 included in logs or client configuration. The public Supabase root certificate
 in `lib/tasks/database-ca.js` enables certificate-verified TLS. If the project's
 CA changes, set `TASK_DATABASE_CA` to its PEM certificate (escaped newlines work).
@@ -26,6 +32,12 @@ the existing database connector for setup only; app requests never read connecto
 files or use the administrative database credential. Re-running setup keeps the
 existing login and password. The application pool has one connection per instance
 and bounded connection/query timeouts.
+
+If a dedicated Task password drifts from the saved local credential and PostgreSQL
+reports `28P01`, `node scripts/setup-tasks.mjs --repair-login` restores the existing
+random credential for `task_api` only. It checks that the saved connection targets
+the same project and that the role still enforces RLS. It does not rotate project
+credentials, elevate privileges, or change user accounts.
 
 ## Ownership and scoring
 
@@ -42,7 +54,7 @@ set scores or earned points, or directly mark a task submitted/reviewed.
 Database triggers enforce Available → In Progress → Submitted → Reviewed;
 submission and feedback transitions happen atomically with their records.
 
-Task points are fixed by selected difficulty: 50, 100 or 150. Gemini returns a
+Task points are fixed by selected difficulty: 50, 100 or 150. The AI returns a
 0–100 score, earned points, strengths, improvements and suggestions. The server
 validates the shape and normalizes earned points to `round(points * score / 100)`.
 The database also checks that formula. Unique submission/feedback constraints
@@ -52,7 +64,8 @@ saved feedback, rather than an independently mutable profile total.
 AI calls happen outside database transactions. A short database lease prevents
 concurrent AI requests per user, with a five-second cooldown, a 90-second crash
 recovery expiry, a maximum of 20 active tasks and 20 generated tasks per rolling
-24 hours. The provider request times out after 45 seconds. Generation failures
+24 hours. Each provider gets one attempt with a 20-second timeout, for at most
+40 seconds of provider wait with both configured. Generation failures
 do not create fabricated tasks. Answers are saved before evaluation; failed
 evaluations remain Submitted and can be retried without resubmitting the answer.
 
@@ -60,7 +73,8 @@ Mutation routes require a same-origin JSON request and validate field sizes,
 UUIDs, categories, difficulties and HTTP(S) work links. URL credentials are
 rejected. Work links are never fetched: there is no URL-context or browsing tool,
 no SSRF request, and no claim that the linked work was independently verified.
-The form discloses that the answer and optional URL are sent to Gemini; history
+The form discloses that the answer and optional URL go to Gemini, with Groq used
+if Gemini fails; history
 shows that evaluation is based on written evidence only.
 
 ## Future connections
