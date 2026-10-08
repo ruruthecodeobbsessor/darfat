@@ -3,6 +3,12 @@ import { CheckButton } from '@/components/CheckButton';
 
 import { connection } from 'next/server';
 
+export const instant = false;
+
+export const metadata = {
+  title: "سەرچاوەکانی کۆکردنەوە | دەرفەت",
+};
+
 export default async function AdminSourcesPage() {
   await connection();
   const res = await query('SELECT * FROM sources ORDER BY id ASC');

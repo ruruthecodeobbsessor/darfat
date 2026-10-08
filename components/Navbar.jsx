@@ -50,8 +50,8 @@ export function Navbar({ user = null, profile = null }) {
               href="/"
               className="flex items-center gap-2.5 font-bold text-xl text-slate-900 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-                <Compass className="w-5 h-5" strokeWidth={2.2} />
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-md border border-slate-200/80 overflow-hidden group-hover:scale-105 transition-transform p-1">
+                <img src="/icon.png" alt="دەرفەت - Darfat" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">

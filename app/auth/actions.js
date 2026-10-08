@@ -38,7 +38,10 @@ async function authenticate(formData, registering) {
     } else {
       result = await supabase.auth.signInWithPassword({ email, password });
     }
-    if (result.error) return { message: authErrorMessage(result.error) };
+    if (result.error) {
+      console.error("Supabase Auth Error:", result.error);
+      return { message: authErrorMessage(result.error) };
+    }
     if (!result.data.session || !result.data.user) return { message: "نەتوانرا چوونەژوورەوە تەواو بکرێت. تکایە دووبارە هەوڵ بدەرەوە." };
     const cookieStore = await cookies();
     cookieStore.set(REMEMBER_COOKIE, remember ? "1" : "0", sessionCookieOptions({}, remember));

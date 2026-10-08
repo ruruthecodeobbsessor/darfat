@@ -9,10 +9,10 @@ export function Footer() {
           {/* Logo & description */}
           <div className="flex flex-col items-center md:items-start text-center md:text-start gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center shadow-xs">
-                <Compass className="w-4 h-4" strokeWidth={2.2} />
+              <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-xs overflow-hidden p-0.5">
+                <img src="/icon.png" alt="دەرفەت - Darfat" className="w-full h-full object-contain" />
               </div>
-              <span className="text-lg font-extrabold text-slate-900">دەرفەت (Derfet)</span>
+              <span className="text-lg font-extrabold text-slate-900">دەرفەت (Darfat)</span>
             </div>
             <p className="text-xs text-slate-500 max-w-sm">
               پلاتفۆرمی دۆزینەوەی دەرفەت و گەشەپێدان بۆ گەنجانی کوردستان. هەموو چالاکی و دەرفەتەکان لە یەک شوێن.
