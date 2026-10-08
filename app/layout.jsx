@@ -1,6 +1,8 @@
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { Suspense } from "react";
+import { AuthNavbar } from "@/components/auth/AuthNavbar";
 import { Footer } from "@/components/Footer";
 
 const vazirmatn = Vazirmatn({
@@ -26,7 +28,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${vazirmatn.className} min-h-screen flex flex-col bg-slate-50/70 text-slate-900 selection:bg-orange-500 selection:text-white antialiased`}
       >
-        <Navbar />
+        <Suspense fallback={<Navbar />}>
+          <AuthNavbar />
+        </Suspense>
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
       </body>

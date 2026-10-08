@@ -1,0 +1,56 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { dirname, delimiter, join } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const bin = process.env.PATH.split(delimiter).find((entry) => fs.existsSync(join(dirname(entry), 'playwright/index.mjs')));
+if (!bin) throw new Error('Run with npm exec --package=playwright@1.64.0 -- node scripts/test-auth-browser.mjs');
+const { chromium } = await import(pathToFileURL(join(dirname(bin), 'playwright/index.mjs')));
+const browser = await chromium.launch({ channel: process.env.AUTH_TEST_BROWSER || 'chrome', headless: true });
+const context = await browser.newContext({ viewport: { width: 375, height: 812 }, reducedMotion: 'reduce' });
+const page = await context.newPage();
+const origin = process.env.AUTH_TEST_ORIGIN || 'http://localhost:3000';
+try {
+  await page.goto(origin + '/register');
+  await page.locator('#password').pressSequentially('test-password-only');
+  assert.equal(await page.locator('#password').getAttribute('data-password-toggle'), 'custom');
+  if (process.env.AUTH_TEST_SCREENSHOT) await page.screenshot({ path: process.env.AUTH_TEST_SCREENSHOT });
+  const toggle = page.locator('button[aria-controls="password"]');
+  const box = await toggle.boundingBox();
+  const inputBox = await page.locator('#password').boundingBox();
+  assert.ok(box.width >= 44 && box.height >= 44);
+  assert.ok(box.x >= inputBox.x && box.x + box.width <= inputBox.x + inputBox.width);
+  assert.ok(box.y >= inputBox.y && box.y + box.height <= inputBox.y + inputBox.height);
+  await toggle.click();
+  assert.equal(await page.locator('#password').getAttribute('type'), 'text');
+  assert.equal(await page.locator('#confirmPassword').getAttribute('type'), 'password');
+  await toggle.click();
+  assert.equal(await page.locator('#password').getAttribute('type'), 'password');
+  await page.locator('#name').fill('Test Name');
+  await page.locator('#email').fill('test@example.invalid');
+  await page.locator('#confirmPassword').fill('different-password');
+  await page.locator('button[type="submit"]').click();
+  await page.locator('#confirmPassword-error').waitFor();
+  assert.equal(await page.locator('#confirmPassword').getAttribute('aria-invalid'), 'true');
+  assert.equal(await page.locator('#email').inputValue(), 'test@example.invalid');
+  assert.equal(await page.locator('#name').inputValue(), 'Test Name');
+  assert.equal(await page.locator('#password').inputValue(), '');
+  assert.equal(await page.locator('#confirmPassword').inputValue(), '');
+  assert.equal(await page.locator('#password').getAttribute('type'), 'password');
+  assert.equal(await page.locator('#confirmPassword').getAttribute('type'), 'password');
+  assert.equal(await page.locator('form [role="alert"]').evaluate((element) => document.activeElement === element), true);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await page.setViewportSize({ width: 812, height: 375 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  await page.goto(origin + '/login');
+  assert.equal(await page.locator('input[name="remember"]').isChecked(), false);
+  await page.locator('button[type="submit"]').click();
+  await page.locator('#email-error').waitFor();
+  await page.locator('#password-error').waitFor();
+  await page.goto(origin + '/login?reason=expired');
+  await page.getByText('Your session has expired, please sign in again.', { exact: true }).waitFor();
+  console.log('PASS: password toggles stay inside fields, independent visibility, 44px controls, server validation, retained values, focused errors, mobile/landscape layout, remember default, and expiry message.');
+} finally {
+  await context.close();
+  await browser.close();
+}
