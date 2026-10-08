@@ -2,6 +2,7 @@ import { query } from '@/lib/db';
 import { matchOpportunities } from '@/lib/ai';
 import Link from 'next/link';
 import { Calendar, MapPin, Briefcase, Lightbulb } from 'lucide-react';
+import CompanyLogo from '@/components/CompanyLogo';
 
 import { connection } from 'next/server';
 
@@ -105,11 +106,11 @@ export default async function OpportunitiesPage({ searchParams }) {
               <div className="p-6 pb-4 relative z-10 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                   <div className="w-14 h-14 shrink-0 bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-300">
-                    <img 
-                      src={logoUrl} 
+                    <CompanyLogo 
+                      src={clearbitUrl || fallbackUrl} 
+                      fallbackSrc={fallbackUrl}
                       alt={opp.organizer} 
                       className="w-full h-full object-contain rounded-xl"
-                      onError={(e) => { e.target.onerror = null; e.target.src = fallbackUrl; }}
                     />
                   </div>
                   <div className="flex flex-col items-end gap-1.5">

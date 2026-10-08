@@ -12,6 +12,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CompanyLogo from "@/components/CompanyLogo";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 
 export const metadata = {
@@ -256,11 +257,11 @@ export default async function HomePage() {
                   <div className="p-6 pb-4 relative z-10 flex flex-col gap-4">
                     <div className="flex justify-between items-start">
                       <div className="w-14 h-14 shrink-0 bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-300">
-                        <img 
-                          src={logoUrl} 
+                        <CompanyLogo 
+                          src={clearbitUrl || fallbackUrl} 
+                          fallbackSrc={fallbackUrl}
                           alt={item.organizer} 
                           className="w-full h-full object-contain rounded-xl"
-                          onError={(e) => { e.target.onerror = null; e.target.src = fallbackUrl; }}
                         />
                       </div>
                       <div className="flex flex-col items-end gap-1.5">
