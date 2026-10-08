@@ -15,6 +15,7 @@
     "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
     "duck-duck-scrape": "^2.2.7",
+    "framer-motion": "^14.0.0",
     "googlethis": "^1.8.0",
     "groq-sdk": "^1.6.0",
     "lucide-react": "^1.53.0",
