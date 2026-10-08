@@ -1,13 +1,25 @@
+import { Suspense } from 'react';
 import { query } from '@/lib/db';
-import { matchOpportunities } from '@/lib/ai';
+import { requireAuth } from '@/lib/auth/server';
+import { getOpportunityMatches } from '@/lib/opportunity-match';
+import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
 import { Calendar, MapPin, Briefcase } from 'lucide-react';
 
-import { connection } from 'next/server';
+// The heading renders instantly; the user-specific list streams in behind Suspense.
+export default function OpportunitiesPage({ searchParams }) {
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-bold text-slate-900 mb-8">دەرفەتەکان</h1>
+      <Suspense fallback={<Spinner text="دۆزینەوەی دەرفەتە گونجاوەکان..." />}>
+        <OpportunityResults searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
 
-export default async function OpportunitiesPage({ searchParams }) {
-  await connection();
-  const resolvedParams = await searchParams;
+async function OpportunityResults({ searchParams }) {
+  const [{ profile }, resolvedParams] = await Promise.all([requireAuth(), searchParams]);
   const typeFilter = resolvedParams?.type;
 
   // Fetch active opportunities
@@ -23,28 +35,14 @@ export default async function OpportunitiesPage({ searchParams }) {
       created_at DESC
   `;
   const res = await query(sql);
-  let opportunities = res.rows;
+  const allOpportunities = res.rows;
 
-  if (typeFilter) {
-    opportunities = opportunities.filter(o => o.type === typeFilter);
-  }
+  // Scores use the signed-in user's real profile; matching all opportunities keeps one cache entry per profile.
+  const matches = await getOpportunityMatches(profile, allOpportunities);
 
-  // Mock user profile to get match score
-  const mockProfile = {
-    interests: ["technology", "coding", "volunteering"],
-    skills: ["React", "JavaScript", "Leadership"],
-    location: "هەولێر",
-    available_time: "weekends"
-  };
-
-  let matchedData = [];
-  if (opportunities.length > 0) {
-    matchedData = await matchOpportunities(mockProfile, opportunities);
-  }
-
-  // Map match data back to opportunities
+  let opportunities = typeFilter ? allOpportunities.filter(o => o.type === typeFilter) : allOpportunities;
   opportunities = opportunities.map(opp => {
-    const match = matchedData.find(m => m.id === opp.id) || { score: 0, reason: "هیچ داتایەکی گونجاوی هاوتاکردن نەدۆزرایەوە." };
+    const match = matches.get(String(opp.id));
     return { ...opp, matchScore: match.score, aiReason: match.reason };
   });
 
@@ -54,9 +52,7 @@ export default async function OpportunitiesPage({ searchParams }) {
   const types = ["hackathon", "volunteer", "competition", "workshop", "club"];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">دەرفەتەکان</h1>
-      
+    <>
       {/* Filters */}
       <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
         <Link href="/opportunities">
@@ -124,6 +120,6 @@ export default async function OpportunitiesPage({ searchParams }) {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
