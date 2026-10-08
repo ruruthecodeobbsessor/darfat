@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { searchWebForOpportunities } from '@/lib/ai';
+import { fetchFallbackOpportunities } from '@/lib/rss';
 import { query } from '@/lib/db';
 
 export async function GET(req) {
@@ -20,7 +21,11 @@ export async function GET(req) {
     const sourcesData = await checkRes.json();
 
     // 2. Trigger open web search for NEW opportunities outside our sources list
-    const webOpportunities = await searchWebForOpportunities();
+    let webOpportunities = await searchWebForOpportunities();
+    // Fallback if AI quota exceeded or no results
+    if (webOpportunities.length === 0) {
+      webOpportunities = await fetchFallbackOpportunities();
+    }
     
     let webNewCount = 0;
     for (const opp of webOpportunities) {

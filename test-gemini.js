@@ -1,11 +1,17 @@
-require('dotenv').config({ path: '.env.local' });
-const { extractOpportunities } = require('./lib/ai.js');
+/* eslint-disable @typescript-eslint/no-require-imports */
+
+const { searchWebForOpportunities } = require('./lib/ai.js');
 
 async function test() {
   try {
-    const text = "Join our upcoming hackathon in Erbil this Friday! Tech for Good.";
-    const result = await extractOpportunities(text, "https://example.com");
-    console.log("Success:", result);
+    console.log("Starting deep web search...");
+    let result = await searchWebForOpportunities();
+    if (result.length === 0) {
+      console.log("AI returned empty, trying fallback...");
+      const { fetchFallbackOpportunities } = require('./lib/rss.js');
+      result = await fetchFallbackOpportunities();
+    }
+    console.log("Found opportunities:", JSON.stringify(result, null, 2));
   } catch (err) {
     console.error("Failed:", err);
   }

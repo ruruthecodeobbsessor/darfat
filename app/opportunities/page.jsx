@@ -14,7 +14,13 @@ export default async function OpportunitiesPage({ searchParams }) {
   let sql = `
     SELECT * FROM opportunities 
     WHERE status = 'published' AND (deadline >= CURRENT_DATE OR deadline IS NULL)
-    ORDER BY created_at DESC
+    ORDER BY 
+      CASE 
+        WHEN location ILIKE '%Kurdistan%' OR location ILIKE '%Erbil%' OR location ILIKE '%هەولێر%' OR location ILIKE '%Sulaymaniyah%' OR location ILIKE '%سلێمانی%' OR location ILIKE '%Duhok%' OR location ILIKE '%دهۆک%' OR location ILIKE '%کوردستان%' THEN 1
+        WHEN location ILIKE '%Iraq%' OR location ILIKE '%عێراق%' THEN 2
+        ELSE 3
+      END ASC,
+      created_at DESC
   `;
   const res = await query(sql);
   let opportunities = res.rows;
