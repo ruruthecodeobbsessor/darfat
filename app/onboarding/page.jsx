@@ -10,7 +10,7 @@ export const metadata = {
 
 async function OnboardingContent() {
   const { profile } = await requireAuth();
-  if (profile.onboarding_completed) redirect("/profile");
+  if (profile.onboarding_completed) redirect("/opportunities");
   return <OnboardingChat />;
 }
 

@@ -144,11 +144,11 @@ export function OnboardingChat() {
               size="lg"
               className="w-full"
               onClick={() => {
-                router.replace("/profile");
+                router.replace("/opportunities");
                 router.refresh();
               }}
             >
-              <span>بینینی پڕۆفایلەکەم</span>
+              <span>بینینی دەرفەتە پێشنیارکراوەکان</span>
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
           ) : (
