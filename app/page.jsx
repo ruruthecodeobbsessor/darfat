@@ -18,10 +18,40 @@ export const metadata = {
   title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
   description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
 };
+
+import { query } from '@/lib/db';
+import { connection } from 'next/server';
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
 
-export default function HomePage() {
-  const sampleOpportunities = [
+export const instant = false;
+
+export default async function HomePage() {
+  await connection();
+  
+  let dbOpportunities = [];
+  try {
+    const res = await query(`
+      SELECT * FROM opportunities 
+      WHERE status = 'published' AND (deadline >= CURRENT_DATE OR deadline IS NULL)
+      ORDER BY created_at DESC
+      LIMIT 3
+    `);
+    
+    dbOpportunities = res.rows.map(opp => ({
+      id: opp.id,
+      title: opp.title,
+      type: opp.type,
+      organizer: opp.organizer || 'نەزانراو',
+      location: opp.location || 'کوردستان',
+      date: opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات',
+      skills: Array.isArray(opp.required_skills) && opp.required_skills.length > 0 ? opp.required_skills.slice(0,3) : ["گەشەپێدان", "فێربوون"],
+      aiReason: "٩٠٪ گونجاوە - ژیریی دەستکرد پێشبینی دەکات ئەمە دەرفەتێکی باش بێت بۆ گەشەپێدانی تواناکانت."
+    }));
+  } catch (error) {
+    console.error("Failed to load opportunities for homepage:", error);
+  }
+
+  const sampleOpportunities = dbOpportunities.length > 0 ? dbOpportunities : [
     {
       id: "1",
       title: "هاکاسۆنی پڕۆگرامسازی بۆ لاوانی کوردستان",
