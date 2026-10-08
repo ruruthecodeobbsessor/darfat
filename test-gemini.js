@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-
 const { searchWebForOpportunities } = require('./lib/ai.js');
 
 async function test() {
