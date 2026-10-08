@@ -11,6 +11,7 @@ import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth/config";
 
 const notices = {
   "signed-out": "بە سەرکەوتوویی چوویتە دەرەوە.",
+  "account-deleted": "هەژمارەکەت بە سەرکەوتوویی لە داتابەیس سڕایەوە.",
   configuration: "پەیوەندی چوونەژوورەوە ئامادە نییە. تکایە دواتر هەوڵ بدەرەوە.",
   unavailable: "نەتوانرا هەژمارەکەت بپشکنرێت. تکایە دووبارە هەوڵ بدەرەوە.",
   "confirmation-failed": "بەستەری پشتڕاستکردنەوە بەسەرچووە یان دروست نییە. ئەگەر ئیمەیڵەکەت پشتڕاستکراوەتەوە، بچۆ ژوورەوە.",
@@ -36,8 +37,8 @@ export function AuthScreen({ mode, searchParams }) {
   return <section className="flex flex-1 items-center justify-center bg-gradient-to-b from-orange-50/70 via-white to-slate-50 px-4 py-12 sm:py-16">
     <div className="w-full max-w-md">
       <div className="mb-7 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-orange-200 bg-orange-100 text-orange-700">
-          <ShieldCheck aria-hidden="true" className="h-7 w-7" />
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden p-1.5">
+          <img src="/icon.png" alt="دەرفەت - Darfat" className="h-full w-full object-contain" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{registering ? "هەژمارێک دروست بکە" : "بەخێربێیتەوە"}</h1>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{registering ? "زانیارییەکانت بنووسە بۆ تۆمارکردن لە دەرفەت." : "بە ئیمەیڵ و وشەی نهێنی بچۆ ژوورەوە."}</p>
