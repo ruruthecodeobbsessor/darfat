@@ -6,7 +6,7 @@ import { LogoutNotice } from "@/components/auth/LogoutNotice";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getIdentity } from "@/lib/auth/server";
-import { roleDestination } from "@/lib/auth/routing";
+import { homeFor } from "@/lib/auth/routing";
 import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth/config";
 
 const notices = {
@@ -18,7 +18,7 @@ const notices = {
 
 async function AuthContent({ mode, searchParams }) {
   const [{ identity }, params] = await Promise.all([getIdentity(), searchParams]);
-  if (identity) redirect(roleDestination(identity.profile.role));
+  if (identity) redirect(homeFor(identity.profile));
   const expired = params?.reason === "expired";
   const signedOut = params?.reason === "signed-out";
   const notice = notices[params?.reason];
