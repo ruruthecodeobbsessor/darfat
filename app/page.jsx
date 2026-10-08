@@ -41,6 +41,7 @@ export default async function HomePage() {
       id: opp.id,
       title: opp.title,
       type: opp.type,
+      link: opp.link,
       organizer: opp.organizer || 'نەزانراو',
       location: opp.location || 'کوردستان',
       date: opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات',
@@ -57,6 +58,7 @@ export default async function HomePage() {
       title: "هاکاسۆنی پڕۆگرامسازی بۆ لاوانی کوردستان",
       type: "hackathon",
       organizer: "دەزگای تەکنەلۆژیای هەولێر",
+      link: "https://github.com",
       location: "هەولێر",
       date: "١٥ تشرینی دووەم ٢٠٢٦",
       skills: ["React", "Python", "UI/UX"],
@@ -67,6 +69,7 @@ export default async function HomePage() {
       title: "فیستیڤاڵی گەنجانی داهێنەر",
       type: "volunteer",
       organizer: "ڕێکخراوی گەشەی لاوان",
+      link: "https://google.com",
       location: "سلێمانی",
       date: "٢٠ تشرینی دووەم ٢٠٢٦",
       skills: ["سەرکردایەتی", "ڕێکخستن", "پەیوەندییەکان"],
@@ -77,6 +80,7 @@ export default async function HomePage() {
       title: "وۆرکشۆپی پەرەپێدانی ئەپڵیکەیشنی مۆبایل و دیزاین",
       type: "workshop",
       organizer: "ناوەندی گەشەپێدانی دهۆک",
+      link: "https://vercel.com",
       location: "دهۆک (ئۆنلاین)",
       date: "٢٨ تشرینی دووەم ٢٠٢٦",
       skills: ["Figma", "Mobile UI", "Next.js"],
@@ -226,56 +230,88 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {sampleOpportunities.map((item) => {
               const typeConfig = OPPORTUNITY_TYPES ? OPPORTUNITY_TYPES[item.type] : null;
               
+              let domain = '';
+              try {
+                if (item.link) domain = new URL(item.link).hostname;
+              } catch(e) {}
+              const logoUrl = domain 
+                ? `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128` 
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.organizer || 'D')}&background=random&color=fff&size=128&font-size=0.4`;
+              
               return (
-                <div key={item.id} className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors flex flex-col justify-between">
-                  <div>
-                    <div className="mb-3">
-                      <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                        {typeConfig ? typeConfig.label : item.type}
-                      </span>
-                    </div>
-                    <h3 className="font-semibold text-lg mb-4 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <div className="space-y-2 text-sm text-slate-600 mb-6">
-                      <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" />
-                        <span>{item.organizer}</span>
+                <div key={item.id} className="group flex flex-col justify-between bg-white border-2 border-slate-900 rounded-2xl shadow-[6px_6px_0px_0px_rgba(249,115,22,1)] hover:shadow-[10px_10px_0px_0px_rgba(249,115,22,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200 overflow-hidden">
+                  
+                  {/* Header section with real logo */}
+                  <div className="p-6 border-b-2 border-slate-900 bg-orange-50 flex items-start justify-between gap-4 relative overflow-hidden">
+                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
+                    <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
+                    
+                    <div className="flex-1 z-10">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="text-[11px] font-black uppercase tracking-wider bg-white border-2 border-slate-900 text-slate-900 px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
+                          {typeConfig ? typeConfig.label : item.type}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
+                      <h3 className="text-xl font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-orange-600 transition-colors">
+                        {item.title}
+                      </h3>
+                    </div>
+                    
+                    <div className="w-16 h-16 shrink-0 bg-white border-2 border-slate-900 rounded-xl overflow-hidden shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] z-10">
+                      <img src={logoUrl} alt={item.organizer} className="w-full h-full object-contain p-1" />
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-6 flex-1 flex flex-col bg-white">
+                    <div className="space-y-3 text-sm text-slate-700 font-bold mb-6">
+                      <div className="flex items-center gap-3">
+                        <Briefcase className="w-5 h-5 text-orange-600" />
+                        <span className="line-clamp-1">{item.organizer}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <MapPin className="w-5 h-5 text-orange-600" />
                         <span>{item.location}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-5 h-5 text-orange-600" />
                         <span>{item.date}</span>
                       </div>
                     </div>
 
-                    {/* Recommendation Reason Box */}
-                    <div className="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-orange-900 mb-4 flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
-                      <p className="leading-relaxed">{item.aiReason}</p>
-                    </div>
-
                     {/* Skills */}
-                    <div className="flex flex-wrap gap-1.5 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {item.skills.map((skill) => (
-                        <span key={skill} className="px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600">
+                        <span key={skill} className="px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-xs font-black text-slate-800 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
                           {skill}
                         </span>
                       ))}
                     </div>
+
+                    {/* Recommendation Reason Box */}
+                    <div className="mt-auto bg-slate-100 p-4 rounded-xl border-2 border-slate-900 border-dashed">
+                      <p className="text-xs font-bold text-slate-800 leading-relaxed flex flex-col">
+                        <span className="text-orange-600 font-black block mb-1 uppercase tracking-wider flex items-center gap-1.5">
+                          <Lightbulb className="w-4 h-4" />
+                          بۆچی بۆت دەگونجێت؟
+                        </span>
+                        {item.aiReason}
+                      </p>
+                    </div>
                   </div>
-                  <Link href={`/opportunities`} className="block mt-4">
-                    <Button variant="secondary" className="w-full">
-                      وردەکاری زیاتر
-                    </Button>
-                  </Link>
+                  
+                  {/* Card Footer */}
+                  <div className="p-6 pt-0 bg-white">
+                    <Link href={`/opportunities`} className="block">
+                      <button className="w-full bg-slate-900 text-white border-2 border-slate-900 py-3 rounded-xl text-sm font-black uppercase tracking-wider hover:bg-orange-500 hover:text-slate-900 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all duration-200">
+                        بینینی وردەکاری
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               );
             })}
