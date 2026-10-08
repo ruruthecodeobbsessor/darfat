@@ -31,6 +31,7 @@ import { CITIES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { updateProfile, deleteAccount } from "@/app/profile/actions";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const emptyProfile = {
   fullName: "",
@@ -248,18 +249,29 @@ export default function ProfileExperience({ initialProfile = null, participation
             </p>
           </div>
           {showProfile && (
-            <Button
-              onClick={() => {
-                setIsEditing(true);
-                setNotice("");
-                setSaveError("");
-              }}
-              variant="outline"
-              className="min-h-11 self-start sm:self-auto"
-            >
-              <Pencil className="h-4 w-4 me-1.5" aria-hidden="true" />
-              دەستکاریکردنی پڕۆفایل
-            </Button>
+            <div className="flex flex-col gap-3 self-start sm:self-auto sm:flex-row sm:items-center">
+              <div
+                className="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-lg font-extrabold text-orange-800"
+                aria-label={`وێنەی پڕۆفایلی ${profile.fullName}`}
+              >
+                {getInitials(profile.fullName)}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    setIsEditing(true);
+                    setNotice("");
+                    setSaveError("");
+                  }}
+                  variant="outline"
+                  className="min-h-11"
+                >
+                  <Pencil className="h-4 w-4 me-1.5" aria-hidden="true" />
+                  دەستکاریکردنی پڕۆفایل
+                </Button>
+                <SignOutButton />
+              </div>
+            </div>
           )}
         </div>
 

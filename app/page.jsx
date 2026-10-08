@@ -62,10 +62,7 @@ export default function HomePage() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Top Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/80 text-orange-800 text-xs sm:text-sm font-semibold mb-6 border border-orange-200 shadow-xs animate-fade-in">
-            <Compass className="w-4 h-4 text-orange-600" />
-            <span>پلاتفۆرمی گەشەپێدان و دۆزینەوەی دەرفەت بۆ لاوانی کوردستان و عێراق</span>
-          </div>
+          
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.25] sm:leading-[1.2] max-w-4xl mx-auto mb-6">

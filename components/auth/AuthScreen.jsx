@@ -37,8 +37,8 @@ export function AuthScreen({ mode, searchParams }) {
   return <section className="flex flex-1 items-center justify-center bg-gradient-to-b from-orange-50/70 via-white to-slate-50 px-4 py-12 sm:py-16">
     <div className="w-full max-w-md">
       <div className="mb-7 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden p-1.5">
-          <img src="/icon.png" alt="دەرفەت - Darfat" className="h-full w-full object-contain" />
+        <div className="mx-auto mb-4 flex items-center justify-center">
+          <img src="/icon.png" alt="دەرفەت - Darfat" className="w-20 h-20 object-contain" />
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{registering ? "هەژمارێک دروست بکە" : "بەخێربێیتەوە"}</h1>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">{registering ? "زانیارییەکانت بنووسە بۆ تۆمارکردن لە دەرفەت." : "بە ئیمەیڵ و وشەی نهێنی بچۆ ژوورەوە."}</p>
