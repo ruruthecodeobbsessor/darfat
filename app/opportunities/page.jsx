@@ -1,7 +1,7 @@
 import { query } from '@/lib/db';
 import { matchOpportunities } from '@/lib/ai';
 import Link from 'next/link';
-import { Calendar, MapPin, Briefcase } from 'lucide-react';
+import { Calendar, MapPin, Briefcase, Lightbulb } from 'lucide-react';
 
 import { connection } from 'next/server';
 
@@ -85,62 +85,79 @@ export default async function OpportunitiesPage({ searchParams }) {
         {opportunities.map(opp => {
           let domain = '';
           try {
-            if (opp.link) domain = new URL(opp.link).hostname;
+            if (opp.link) domain = new URL(opp.link).hostname.replace('www.', '');
           } catch(e) {}
-          const logoUrl = domain 
-            ? `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128` 
-            : `https://ui-avatars.com/api/?name=${encodeURIComponent(opp.organizer || 'D')}&background=random&color=fff&size=128&font-size=0.4`;
+          
+          const clearbitUrl = domain ? `https://logo.clearbit.com/${domain}?size=128` : '';
+          const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(opp.organizer || 'D')}&background=random&color=fff&size=128&font-size=0.4`;
+          const logoUrl = clearbitUrl || fallbackUrl;
           
           return (
-            <div key={opp.id} className="group flex flex-col justify-between bg-white border-2 border-slate-900 rounded-2xl shadow-[6px_6px_0px_0px_rgba(249,115,22,1)] hover:shadow-[10px_10px_0px_0px_rgba(249,115,22,1)] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200 overflow-hidden">
+            <div key={opp.id} className="group flex flex-col justify-between bg-white border border-slate-200/80 rounded-[24px] shadow-sm hover:shadow-xl hover:shadow-orange-900/5 hover:-translate-y-1 transition-all duration-300 overflow-hidden relative">
               
-              {/* Header section with real logo */}
-              <div className="p-6 border-b-2 border-slate-900 bg-orange-50 flex items-start justify-between gap-4 relative overflow-hidden">
-                <div className="absolute -right-10 -top-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
-                
-                <div className="flex-1 z-10">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="text-[11px] font-black uppercase tracking-wider bg-white border-2 border-slate-900 text-slate-900 px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                      {opp.type}
-                    </span>
+              {/* Subtle Glowing Background */}
+              <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute -right-12 -top-12 w-48 h-48 bg-orange-400/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all duration-500"></div>
+                <div className="absolute -left-12 top-20 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
+              </div>
+
+              {/* Header section */}
+              <div className="p-6 pb-4 relative z-10 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="w-14 h-14 shrink-0 bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform duration-300">
+                    <img 
+                      src={logoUrl} 
+                      alt={opp.organizer} 
+                      className="w-full h-full object-contain rounded-xl"
+                      onError={(e) => { e.target.onerror = null; e.target.src = fallbackUrl; }}
+                    />
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
                     {opp.matchScore > 0 && (
-                      <span className="text-[11px] font-black bg-orange-500 border-2 border-slate-900 text-white px-3 py-1 rounded-full shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
+                      <span className="text-[11px] font-bold bg-gradient-to-l from-orange-500 to-amber-500 text-white px-2.5 py-1 rounded-full shadow-sm shadow-orange-500/20">
                         {opp.matchScore}% گونجاوە
                       </span>
                     )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100/80 px-2.5 py-1 rounded-full">
+                      {opp.type}
+                    </span>
                   </div>
-                  <h2 className="text-xl font-black text-slate-900 line-clamp-2 leading-snug group-hover:text-orange-600 transition-colors">
-                    {opp.title}
-                  </h2>
                 </div>
-                
-                <div className="w-16 h-16 shrink-0 bg-white border-2 border-slate-900 rounded-xl overflow-hidden shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] z-10">
-                  <img src={logoUrl} alt={opp.organizer} className="w-full h-full object-contain p-1" />
-                </div>
+
+                <h2 className="text-[19px] font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-orange-600 transition-colors mt-1">
+                  {opp.title}
+                </h2>
               </div>
 
               {/* Card Body */}
-              <div className="p-6 flex-1 flex flex-col bg-white">
-                <div className="space-y-3 text-sm text-slate-700 font-bold mb-6">
+              <div className="px-6 flex-1 flex flex-col relative z-10">
+                <div className="space-y-3 text-[13px] text-slate-600 font-medium mb-6">
                   <div className="flex items-center gap-3">
-                    <Briefcase className="w-5 h-5 text-orange-600" />
+                    <div className="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center shrink-0 text-orange-600">
+                      <Briefcase className="w-3.5 h-3.5" />
+                    </div>
                     <span className="line-clamp-1">{opp.organizer || 'نەزانراو'}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-orange-600" />
+                    <div className="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center shrink-0 text-orange-600">
+                      <MapPin className="w-3.5 h-3.5" />
+                    </div>
                     <span>{opp.location || 'نەزانراو'}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-orange-600" />
+                    <div className="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center shrink-0 text-orange-600">
+                      <Calendar className="w-3.5 h-3.5" />
+                    </div>
                     <span>{opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات'}</span>
                   </div>
                 </div>
 
                 {opp.aiReason && (
-                  <div className="mt-auto bg-slate-100 p-4 rounded-xl border-2 border-slate-900 border-dashed">
-                    <p className="text-xs font-bold text-slate-800 leading-relaxed">
-                      <span className="text-orange-600 block mb-1 uppercase tracking-wider">⚡ ژیریی دەستکرد:</span>
+                  <div className="mt-auto bg-gradient-to-br from-orange-50/80 to-amber-50/40 p-4 rounded-2xl border border-orange-100/50 backdrop-blur-sm">
+                    <p className="text-[13px] text-orange-900/80 leading-relaxed">
+                      <strong className="text-orange-700 block mb-1.5 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <Lightbulb className="w-3 h-3" /> پێشنیاری ژیریی دەستکرد
+                      </strong>
                       {opp.aiReason}
                     </p>
                   </div>
@@ -148,10 +165,10 @@ export default async function OpportunitiesPage({ searchParams }) {
               </div>
 
               {/* Card Footer */}
-              <div className="p-6 pt-0 bg-white">
+              <div className="p-6 pt-5 relative z-10">
                 <Link href={`/opportunities/${opp.id}`} className="block">
-                  <button className="w-full bg-slate-900 text-white border-2 border-slate-900 py-3 rounded-xl text-sm font-black uppercase tracking-wider hover:bg-orange-500 hover:text-slate-900 hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all duration-200">
-                    وردەکاری زیاتر
+                  <button className="w-full bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-all duration-200 shadow-sm">
+                    بینینی وردەکاری
                   </button>
                 </Link>
               </div>
@@ -160,9 +177,9 @@ export default async function OpportunitiesPage({ searchParams }) {
         })}
 
         {opportunities.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-500 bg-slate-100 rounded-3xl border-4 border-slate-900 border-dashed">
-            <Briefcase className="w-16 h-16 text-slate-400 mb-4" />
-            <p className="text-xl font-black text-slate-700">هیچ دەرفەتێک نەدۆزرایەوە</p>
+          <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-500 bg-slate-50/50 rounded-3xl border border-slate-200/50 border-dashed">
+            <Briefcase className="w-12 h-12 text-slate-300 mb-4" />
+            <p className="text-lg font-medium text-slate-600">هیچ دەرفەتێک نەدۆزرایەوە</p>
           </div>
         )}
       </div>
