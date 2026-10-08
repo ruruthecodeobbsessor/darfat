@@ -12,7 +12,6 @@ import {
   CheckSquare, 
   User, 
   ShieldCheck, 
-  LogOut, 
   LogIn 
 } from "lucide-react";
 import { cn } from "@/lib/utils";

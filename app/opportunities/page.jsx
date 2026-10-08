@@ -7,7 +7,8 @@ import { connection } from 'next/server';
 
 export default async function OpportunitiesPage({ searchParams }) {
   await connection();
-  const typeFilter = searchParams?.type;
+  const resolvedParams = await searchParams;
+  const typeFilter = resolvedParams?.type;
 
   // Fetch active opportunities
   let sql = `

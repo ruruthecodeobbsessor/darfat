@@ -12,14 +12,12 @@ export default async function AdminOpportunitiesPage() {
 
   async function approve(id) {
     'use server';
-    const { query } = require('@/lib/db');
     await query("UPDATE opportunities SET status = 'published' WHERE id = $1", [id]);
     revalidatePath('/admin/opportunities');
   }
 
   async function reject(id) {
     'use server';
-    const { query } = require('@/lib/db');
     await query("DELETE FROM opportunities WHERE id = $1", [id]);
     revalidatePath('/admin/opportunities');
   }

@@ -82,7 +82,6 @@ export default async function OpportunityDetail({ params }) {
         <div className="mt-10 flex flex-col sm:flex-row gap-4">
           <form action={async () => {
             'use server';
-            const { query } = require('@/lib/db');
             await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
           }}>
             <button type="submit" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">

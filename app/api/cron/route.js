@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { searchWebForOpportunities } from '@/lib/ai';
+import { query } from '@/lib/db';
 
 export async function GET(req) {
   try {
@@ -18,8 +20,6 @@ export async function GET(req) {
     const sourcesData = await checkRes.json();
 
     // 2. Trigger open web search for NEW opportunities outside our sources list
-    const { searchWebForOpportunities } = require('@/lib/ai');
-    const { query } = require('@/lib/db');
     const webOpportunities = await searchWebForOpportunities();
     
     let webNewCount = 0;
