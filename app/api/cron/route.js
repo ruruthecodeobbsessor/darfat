@@ -36,7 +36,7 @@ export async function GET(req) {
           INSERT INTO opportunities (
             title, description, type, organizer, location, is_online, 
             deadline, required_skills, link, how_to_apply, benefits, status
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'draft')
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'published')
         `, [
           opp.title, opp.description, opp.type, opp.organizer, opp.location, !!opp.is_online,
           opp.deadline && !isNaN(new Date(opp.deadline).getTime()) ? new Date(opp.deadline) : null, 
