@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import nextEnv from '@next/env';
 import { databaseClient } from './auth-db.mjs';
+import { AUTH_PROFILE_COLUMNS } from '../lib/auth/profile-fields.mjs';
 nextEnv.loadEnvConfig(process.cwd());
 const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -32,7 +33,16 @@ try {
     has_function_privilege('anon', 'private.is_admin()', 'EXECUTE') as anonymous_admin_check`);
   assert.deepEqual(security, { rls: true, can_edit_name: true, can_edit_role: false,
     can_edit_id: false, can_insert: false, anonymous_read: false, anonymous_admin_check: false });
+  const { rows: [account] } = await client.query('select id from auth.users order by created_at limit 1');
+  if (account) {
+    await client.query('set local role authenticated');
+    await client.query("select set_config('request.jwt.claim.sub', $1, true)", [account.id]);
+    const own = await client.query(`select ${AUTH_PROFILE_COLUMNS} from public.profiles where id=$1`, [account.id]);
+    assert.equal(own.rowCount, 1, 'The exact profile query used after login must succeed');
+    await client.query('reset role');
+  }
   await client.query('commit');
+  console.log('PASS: the exact post-login profile query succeeds with authenticated permissions.');
   console.log('PASS: database RLS is enabled and profile role/identity permissions remain protected.');
 } finally {
   await client.query('rollback').catch(() => {});

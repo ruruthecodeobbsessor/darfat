@@ -14,7 +14,7 @@ export async function GET(request) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       if (!error && data.user) {
         (await cookies()).set(REMEMBER_COOKIE, "0", sessionCookieOptions());
-        const profile = await readProfile(supabase, data.user.id);
+        const profile = await readProfile(supabase, data.user);
         destination = homeFor(profile);
       }
     }
