@@ -32,13 +32,13 @@ async function UserProfile({ id }) {
   const following = followingIds.has(id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <ProfileHeader profile={profile}>
         <FollowButton userId={id} name={profile.name} initialFollowing={following} />
       </ProfileHeader>
-      <FollowStats stats={stats} />
+      <FollowStats stats={stats} userId={id} />
       <section aria-labelledby="posts-heading">
-        <h2 id="posts-heading" className="mb-4 text-lg font-bold text-slate-900">دەستکەوتەکان</h2>
+        <h2 id="posts-heading" className="mb-4 pt-4 text-[19px] font-semibold text-slate-900">دەستکەوتەکان</h2>
         <PostList
           posts={posts}
           author={profile}
@@ -51,7 +51,7 @@ async function UserProfile({ id }) {
 
 export default function UserPage({ params }) {
   return (
-    <section className="flex-1 bg-slate-50 px-4 py-10 sm:py-14">
+    <section className="flex-1 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <Suspense fallback={<Spinner text="بارکردنی پڕۆفایل..." />}>
           {params.then(({ id }) => (

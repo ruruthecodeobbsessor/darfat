@@ -1,44 +1,18 @@
-import Link from "next/link";
-import { Compass, Heart } from "lucide-react";
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Brand } from "@/components/Navbar";
 
 export function Footer() {
+  const pathname = usePathname();
+  // The landing page ends with its own content; every other page keeps the footer.
+  if (pathname === "/") return null;
+
   return (
-    <footer className="mt-auto border-t border-slate-200/80 bg-white/60 backdrop-blur-sm text-slate-600">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo & description */}
-          <div className="flex flex-col items-center md:items-start text-center md:text-start gap-2">
-            <div className="flex items-center">
-              <img src="/icon.png" alt="دەرفەت - Darfat" className="w-20 h-20 object-contain" />
-            </div>
-            <p className="text-xs text-slate-500 max-w-sm">
-              پلاتفۆرمی دۆزینەوەی دەرفەت و گەشەپێدان بۆ گەنجانی کوردستان. هەموو چالاکی و دەرفەتەکان لە یەک شوێن.
-            </p>
-          </div>
-
-          {/* Quick links */}
-          <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-slate-600">
-            <Link href="/opportunities" className="hover:text-orange-600 transition-colors">
-              دەرفەتەکان
-            </Link>
-            <Link href="/people" className="hover:text-orange-600 transition-colors">
-              هاوتیمەکان
-            </Link>
-            <Link href="/tasks" className="hover:text-orange-600 transition-colors">
-              ئەرکەکان
-            </Link>
-            <Link href="/profile" className="hover:text-orange-600 transition-colors">
-              سیڤیی من
-            </Link>
-          </div>
-
-          {/* Copyright */}
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-            <span>دروستکراوە بە</span>
-            <Heart className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-            <span>بۆ گەنجانی داهاتوو لە کوردستان</span>
-          </div>
-        </div>
+    <footer className="mt-auto border-t border-slate-200/80 bg-white">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-6 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+        <Brand />
+        <p className="text-xs text-slate-500">© دەرفەت. هەموو مافەکان پارێزراون.</p>
       </div>
     </footer>
   );

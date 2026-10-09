@@ -1,195 +1,77 @@
-"use client";
-
-import { useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Briefcase, MapPin, Calendar, Sparkles, ArrowLeft, Tag, Code2, Leaf, Trophy, Lightbulb, Users } from "lucide-react";
-import { OPPORTUNITY_TYPES } from "@/lib/constants";
+import { ArrowLeft, Briefcase, Calendar, Code2, Leaf, Lightbulb, MapPin, Sparkles, Trophy, Users } from "lucide-react";
+import { getOpportunityType } from "@/lib/constants";
 
-const getCategoryIcon = (type, className) => {
-  switch (type) {
-    case "hackathon": return <Code2 className={className} />;
-    case "volunteer": return <Leaf className={className} />;
-    case "competition": return <Trophy className={className} />;
-    case "workshop": return <Lightbulb className={className} />;
-    case "club": return <Users className={className} />;
-    default: return <Sparkles className={className} />;
-  }
-};
+const TYPE_ICONS = { hackathon: Code2, volunteer: Leaf, competition: Trophy, workshop: Lightbulb, club: Users };
 
-const getCategorySolidBg = (type) => {
-  switch (type) {
-    case "hackathon": return "bg-[#FF8B45]";
-    case "volunteer": return "bg-[#A5D4A3]";
-    case "competition": return "bg-[#E2B4FF]";
-    case "workshop": return "bg-[#8ABAF4]";
-    case "club": return "bg-[#FCD34D]";
-    default: return "bg-slate-200";
-  }
-};
+function Meta({ icon: Icon, children }) {
+  return (
+    <li className="flex min-w-0 items-center gap-2 text-[13px] text-slate-500">
+      <Icon className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+      <span className="truncate">{children}</span>
+    </li>
+  );
+}
 
-const getCategoryIconAnimation = (type) => {
-  switch (type) {
-    case "hackathon": 
-      // Coding/tech shift: slight skew and scale
-      return "group-hover:skew-x-12 group-hover:-translate-y-1 group-hover:scale-110 transition-all duration-300";
-    case "volunteer": 
-      // Leaf blowing gently in the wind
-      return "origin-bottom-left group-hover:-rotate-12 group-hover:-translate-y-2 group-hover:scale-110 transition-all duration-500";
-    case "competition": 
-      // Trophy popping up proudly
-      return "group-hover:-translate-y-3 group-hover:scale-110 transition-all duration-300 ease-out";
-    case "workshop": 
-      // Lightbulb expanding (idea growing)
-      return "group-hover:scale-125 transition-all duration-300";
-    case "club": 
-      // Community growing
-      return "group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300";
-    default: 
-      return "group-hover:scale-110 transition-all duration-500";
-  }
-};
-
-export function SpotlightCard({ item, index = 0 }) {
-  const divRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
-
-  const handleMouseMove = (e) => {
-    if (!divRef.current || isFocused) return;
-
-    const div = divRef.current;
-    const rect = div.getBoundingClientRect();
-
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    setOpacity(1);
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    setOpacity(0);
-  };
-
-  const handleMouseEnter = () => {
-    setOpacity(1);
-  };
-
-  const handleMouseLeave = () => {
-    setOpacity(0);
-  };
+// Opportunity card (name kept for existing imports). The whole card is one link to the details page.
+export function SpotlightCard({ item }) {
+  const type = getOpportunityType(item.type);
+  const TypeIcon = TYPE_ICONS[item.type] ?? Sparkles;
+  // Same date format as the details page; the database returns deadlines as Date objects.
+  const date = item.date || (item.deadline ? new Date(item.deadline).toLocaleDateString("ku-IQ") : null);
 
   return (
-    <motion.div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 40, scale: 0.98 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ 
-        duration: 0.7, 
-        delay: (index % 9) * 0.12, 
-        ease: [0.16, 1, 0.3, 1] 
-      }}
-      className="group relative overflow-hidden bg-white/40 backdrop-blur-[40px] border border-white/50 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] hover:-translate-y-2 hover:bg-white/50 hover:border-white/80 rounded-[28px] transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full"
+    <Link
+      href={`/opportunities/${item.id || ""}`}
+      className="group flex h-full flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-[border-color,box-shadow,translate,scale] duration-[1000ms] ease-[cubic-bezier(0.25,0.8,0.25,1)] will-change-transform hover:-translate-y-1.5 hover:border-orange-400/80 hover:shadow-[0_0_0_3px_rgba(239,106,31,0.08),0_0_24px_-4px_rgba(239,106,31,0.28),0_18px_40px_-12px_rgba(0,0,0,0.14)] focus-visible:-translate-y-1.5 active:scale-[0.99] focus-ring sm:p-6 motion-reduce:hover:translate-y-0"
     >
-      <div
-        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 rounded-[28px] z-0"
-        style={{
-          opacity,
-          background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(249,115,22,0.1), transparent 40%)`,
-        }}
-      />
-      
-      {/* Cover Section */}
-      <div className={`relative w-full h-48 flex items-center justify-center shrink-0 transition-colors duration-300 ${getCategorySolidBg(item.type)}`}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex items-center gap-2 text-[13px] font-medium text-slate-600">
+          <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${type.tileClass}`}>
+            <TypeIcon className="h-4 w-4" aria-hidden="true" />
+          </span>
+          {type.label}
+        </span>
         {item.matchScore > 0 && (
-          <div className="absolute top-4 left-4 z-10">
-            <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-bold bg-white/90 text-slate-900 shadow-sm backdrop-blur-sm">
-              {item.matchScore}% گونجاوە
-            </span>
-          </div>
+          <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-800" aria-label={`${item.matchScore}٪ گونجاوە`}>
+            {item.matchScore}٪ گونجاوە
+          </span>
         )}
-        
-        {/* Large Centered Icon matching the mockup with custom animation */}
-        {getCategoryIcon(item.type, `w-20 h-20 text-slate-900 ${getCategoryIconAnimation(item.type)}`)}
       </div>
 
-      <div className="relative z-10 flex flex-col h-full p-6 pt-5">
-        <div className="mb-6 flex-1">
-          <h3 className="text-[20px] font-extrabold text-slate-900 leading-snug mb-5 transition-colors duration-300 line-clamp-2">
-            {item.title}
-          </h3>
-          
-          <div className="flex flex-wrap gap-2 text-[12px] font-semibold text-slate-600">
-            {item.type && OPPORTUNITY_TYPES[item.type] && (
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl shadow-sm border ${OPPORTUNITY_TYPES[item.type].badgeClass}`}>
-                {getCategoryIcon(item.type, "w-3.5 h-3.5")}
-                <span className="line-clamp-1">{OPPORTUNITY_TYPES[item.type].label}</span>
-              </div>
-            )}
-            {item.organizer && (
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-100 px-3 py-2 rounded-xl shadow-sm transition-colors">
-                <Briefcase className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                <span className="line-clamp-1">{item.organizer}</span>
-              </div>
-            )}
-            {item.location && (
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-100 px-3 py-2 rounded-xl shadow-sm transition-colors">
-                <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                <span className="line-clamp-1">{item.location}</span>
-              </div>
-            )}
-            {(item.date || item.deadline) && (
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md border border-slate-100 px-3 py-2 rounded-xl shadow-sm transition-colors">
-                <Calendar className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                <span suppressHydrationWarning>{item.date || String(item.deadline).split('T')[0]}</span>
-              </div>
-            )}
-          </div>
+      <h3 className="mt-4 line-clamp-2 text-[17px] font-semibold leading-7 text-slate-900">{item.title}</h3>
 
-          {item.skills && (
-            <div className="flex flex-wrap gap-1.5 mt-5">
-              {item.skills.map((skill) => (
-                <span key={skill} className="px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg text-[11px] font-semibold text-slate-500">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {item.aiReason && (
-          <div className="mb-7 bg-white/40 backdrop-blur-2xl rounded-[20px] p-4 border border-white/70 shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden group-hover:border-white transition-colors duration-500">
-            <div className="flex items-start gap-3 relative z-10">
-              <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-lg shadow-sm border border-white shrink-0">
-                <Sparkles className="w-4 h-4 text-orange-500" />
-              </div>
-              <p className="text-[13px] text-slate-700 leading-relaxed font-medium mt-0.5">
-                {item.aiReason}
-              </p>
-            </div>
-          </div>
+      <ul className="mt-3 space-y-1.5">
+        {item.organizer && <Meta icon={Briefcase}>{item.organizer}</Meta>}
+        {item.location && <Meta icon={MapPin}>{item.location}</Meta>}
+        {date && (
+          <Meta icon={Calendar}>
+            <span suppressHydrationWarning>{date}</span>
+          </Meta>
         )}
+      </ul>
 
-        <Link 
-          href={`/opportunities/${item.id || ''}`} 
-          className="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between text-[13.5px] font-extrabold text-slate-800 transition-colors"
-        >
-          <span>بینینی وردەکاری زیاتر</span>
-          <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-orange-50 group-hover:shadow-sm transition-all duration-300">
-            <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform duration-300" />
-          </div>
-        </Link>
-      </div>
-    </motion.div>
+      {item.skills?.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="توانا داواکراوەکان">
+          {item.skills.map((skill) => (
+            <li key={skill} className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {skill}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {item.aiReason && (
+        <p className="mt-4 flex gap-2 rounded-xl bg-slate-50 p-3 text-[13px] leading-6 text-slate-600">
+          <Sparkles className="mt-1 h-3.5 w-3.5 shrink-0 text-orange-500" aria-hidden="true" />
+          <span>{item.aiReason}</span>
+        </p>
+      )}
+
+      <span className="mt-auto flex items-center gap-1.5 pt-5 text-[13px] font-semibold text-orange-700">
+        بینینی وردەکاری
+        <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
+      </span>
+    </Link>
   );
 }

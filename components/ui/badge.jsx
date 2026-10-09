@@ -1,37 +1,26 @@
 import { cn } from "@/lib/utils";
 
 const badgeVariants = {
-  default: "bg-slate-100 text-slate-700 border-slate-200",
-  primary: "bg-orange-50 text-orange-700 border-orange-200/80 font-medium",
-  match: "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm font-semibold border-transparent",
-  success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-200",
-  danger: "bg-red-50 text-red-700 border-red-200",
-  outline: "bg-transparent text-slate-600 border-slate-300",
+  default: "bg-slate-100 text-slate-700",
+  primary: "bg-orange-50 text-orange-800",
+  match: "bg-orange-50 text-orange-800 font-semibold",
+  success: "bg-emerald-50 text-emerald-800",
+  warning: "bg-amber-50 text-amber-800",
+  danger: "bg-red-50 text-red-700",
+  outline: "bg-transparent text-slate-600 ring-1 ring-inset ring-slate-200",
 };
 
-export function Badge({
-  className,
-  variant = "default",
-  dot = false,
-  dotColor = "bg-orange-500",
-  children,
-  ...props
-}) {
+export function Badge({ className, variant = "default", dot = false, dotColor = "bg-orange-500", children, ...props }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs border transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium leading-5",
         badgeVariants[variant] || badgeVariants.default,
         className
       )}
       {...props}
     >
-      {dot && (
-        <span
-          className={cn("w-1.5 h-1.5 rounded-full ms-1.5 animate-pulse", dotColor)}
-        />
-      )}
+      {dot && <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} aria-hidden="true" />}
       {children}
     </span>
   );

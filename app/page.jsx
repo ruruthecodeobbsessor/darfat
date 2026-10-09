@@ -1,280 +1,193 @@
 import Link from "next/link";
-import { 
-  Compass, 
-  Users, 
-  Award, 
-  Search, 
-  Calendar, 
-  MapPin, 
-  Briefcase,
-  Target,
-  Lightbulb,
-  CheckCircle2,
-  Sparkles,
-  ArrowLeft
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { ArrowLeft, Award, CheckCircle2, Search, Target, Users } from "lucide-react";
+import { query } from "@/lib/db";
+import { connection } from "next/server";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { HeroBackground } from "@/components/HeroBackground";
+import { FloatingIcons } from "@/components/FloatingIcons";
+import { SlideUp, StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export const metadata = {
   title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
   description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
 };
 
-import { query } from '@/lib/db';
-import { connection } from 'next/server';
-import { OPPORTUNITY_TYPES } from "@/lib/constants";
-import { SlideUp, FadeIn, StaggerContainer, StaggerItem, ScaleIn } from "@/components/ui/animations";
-
 export const instant = false;
+
+const STEPS = [
+  {
+    icon: Target,
+    title: "هاوتاکردنی تواناکان",
+    text: "ژیریی دەستکرد دەرفەتەکان هەڵدەسەنگێنێت و بە ڕێژەی لەسەدا و هۆکارێکی ڕوون پێت دەڵێت بۆچی بۆت دەگونجێت.",
+  },
+  {
+    icon: Users,
+    title: "دۆزینەوەی هاوتیم",
+    text: "پێشنیارکردنی کەسانی خاوەن کارامەیی تەواوکەر، بۆ نموونە دیزاینەر بۆ پڕۆگرامساز، بۆ هاوپڕۆژەکان.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "ئەرکی گەشەپێدان",
+    text: "ئەرکی بچووک و کرداری بۆ بەرزکردنەوەی تواناکانت، کە تەواوکردنیان ڕاستەوخۆ دەچێتە سەر سیڤییەکەت.",
+  },
+  {
+    icon: Award,
+    title: "سیڤیی دیجیتاڵی",
+    text: "بەشداریی سەلمێنراو و ئەرکە تەواوکراوەکان دەبنە بەڵگەی ڕاستەقینەی لێهاتووییت بۆ بازاڕی کار.",
+  },
+];
+
+const SAMPLE_OPPORTUNITIES = [
+  {
+    id: "1",
+    title: "هاکاسۆنی پڕۆگرامسازی بۆ لاوانی کوردستان",
+    type: "hackathon",
+    organizer: "دەزگای تەکنەلۆژیای هەولێر",
+    location: "هەولێر",
+    date: "١٥ تشرینی دووەم ٢٠٢٦",
+    skills: ["React", "Python", "UI/UX"],
+  },
+  {
+    id: "2",
+    title: "فیستیڤاڵی گەنجانی داهێنەر",
+    type: "volunteer",
+    organizer: "ڕێکخراوی گەشەی لاوان",
+    location: "سلێمانی",
+    date: "٢٠ تشرینی دووەم ٢٠٢٦",
+    skills: ["سەرکردایەتی", "ڕێکخستن", "پەیوەندییەکان"],
+  },
+  {
+    id: "3",
+    title: "وۆرکشۆپی پەرەپێدانی ئەپڵیکەیشنی مۆبایل و دیزاین",
+    type: "workshop",
+    organizer: "ناوەندی گەشەپێدانی دهۆک",
+    location: "دهۆک (ئۆنلاین)",
+    date: "٢٨ تشرینی دووەم ٢٠٢٦",
+    skills: ["Figma", "Mobile UI", "Next.js"],
+  },
+];
 
 export default async function HomePage() {
   await connection();
-  
+
   let dbOpportunities = [];
   try {
     const res = await query(`
-      SELECT * FROM opportunities 
+      SELECT * FROM opportunities
       WHERE status = 'published' AND (deadline >= CURRENT_DATE OR deadline IS NULL)
       ORDER BY created_at DESC
       LIMIT 3
     `);
-    
-    dbOpportunities = res.rows.map(opp => ({
+
+    dbOpportunities = res.rows.map((opp) => ({
       id: opp.id,
       title: opp.title,
       type: opp.type,
       link: opp.link,
-      organizer: opp.organizer || 'نەزانراو',
-      location: opp.location || 'کوردستان',
-      date: opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات',
-      skills: Array.isArray(opp.required_skills) && opp.required_skills.length > 0 ? opp.required_skills.slice(0,3) : ["گەشەپێدان", "فێربوون"],
-      aiReason: "٩٠٪ گونجاوە - ژیریی دەستکرد پێشبینی دەکات ئەمە دەرفەتێکی باش بێت بۆ گەشەپێدانی تواناکانت."
+      organizer: opp.organizer || "نەزانراو",
+      location: opp.location || "کوردستان",
+      date: opp.deadline ? new Date(opp.deadline).toLocaleDateString("ku-IQ") : "بێ کات",
+      skills: Array.isArray(opp.required_skills) && opp.required_skills.length > 0 ? opp.required_skills.slice(0, 3) : ["گەشەپێدان", "فێربوون"],
     }));
   } catch (error) {
     console.error("Failed to load opportunities for homepage:", error);
   }
 
-  const sampleOpportunities = dbOpportunities.length > 0 ? dbOpportunities : [
-    {
-      id: "1",
-      title: "هاکاسۆنی پڕۆگرامسازی بۆ لاوانی کوردستان",
-      type: "hackathon",
-      organizer: "دەزگای تەکنەلۆژیای هەولێر",
-      link: "https://github.com",
-      location: "هەولێر",
-      date: "١٥ تشرینی دووەم ٢٠٢٦",
-      skills: ["React", "Python", "UI/UX"],
-      aiReason: "٩٥٪ گونجاوە - چونکە شارەزاییت لە React هەیە و ئارەزووی پێشبڕکێ دەکەیت."
-    },
-    {
-      id: "2",
-      title: "فیستیڤاڵی گەنجانی داهێنەر",
-      type: "volunteer",
-      organizer: "ڕێکخراوی گەشەی لاوان",
-      link: "https://google.com",
-      location: "سلێمانی",
-      date: "٢٠ تشرینی دووەم ٢٠٢٦",
-      skills: ["سەرکردایەتی", "ڕێکخستن", "پەیوەندییەکان"],
-      aiReason: "٨٠٪ گونجاوە - دەرفەتێکی باشە بۆ بەهێزکردنی توانای سەرکردایەتیت."
-    },
-    {
-      id: "3",
-      title: "وۆرکشۆپی پەرەپێدانی ئەپڵیکەیشنی مۆبایل و دیزاین",
-      type: "workshop",
-      organizer: "ناوەندی گەشەپێدانی دهۆک",
-      link: "https://vercel.com",
-      location: "دهۆک (ئۆنلاین)",
-      date: "٢٨ تشرینی دووەم ٢٠٢٦",
-      skills: ["Figma", "Mobile UI", "Next.js"],
-      aiReason: "٩٠٪ گونجاوە - یارمەتیت دەدات بۆ فێربوونی دروستکردنی ئەپڵیکەیشنی مۆبایل."
-    },
-  ];
+  const opportunities = dbOpportunities.length > 0 ? dbOpportunities : SAMPLE_OPPORTUNITIES;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32 bg-gradient-to-b from-orange-50/50 via-white to-slate-50/60 border-b border-slate-200/60">
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-100/30 via-transparent to-transparent -z-10" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Top Pill */}
-          
-
-          <StaggerContainer className="max-w-4xl mx-auto flex flex-col items-center">
-            {/* Heading */}
+    <div className="flex flex-col bg-white">
+      {/* Hero */}
+      {/* Fills the screen below the 65px top bar (64px + 1px border) (svh keeps it right on mobile browsers). */}
+      <section className="relative flex min-h-[calc(100svh-4rem-1px)] items-center overflow-hidden border-b border-slate-200/70">
+        <HeroBackground />
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-16 text-center sm:px-6 lg:px-8">
+          <StaggerContainer className="mx-auto flex max-w-3xl flex-col items-center">
             <StaggerItem>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.25] sm:leading-[1.2] mb-6">
-                هەموو دەرفەتەکان لە یەک شوێن،{" "}
-                <span className="bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">
-                  تایبەت بۆ تواناکانی تۆ
-                </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand-mark.png" alt="" width={56} height={64} className="mx-auto mb-8 h-16 w-auto" />
+            </StaggerItem>
+            <StaggerItem>
+              <h1 className="text-[34px] font-bold leading-[1.3] text-slate-900 sm:text-5xl sm:leading-[1.25] lg:text-[56px]">
+                هەموو دەرفەتەکان لە یەک شوێن،
+                <br />
+                <span className="text-orange-600">تایبەت بۆ تواناکانی تۆ</span>
               </h1>
             </StaggerItem>
-            
-            <StaggerItem>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
-                دەرفەتی کار، هاکاسۆن، و وۆرکشۆپەکان بدۆزەرەوە. چالاکییەکانت تۆمار بکە و سیڤییەکی پیشەیی دروست بکە بۆ داهاتووت.
-              </p>
-            </StaggerItem>
-            
             <StaggerItem className="w-full">
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full">
-                <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto px-8">
-                    چوونە ژوورەوە
-                  </Button>
+              <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/login"
+                  className="pressable inline-flex h-12 items-center justify-center rounded-full bg-orange-600 px-8 text-[15px] font-semibold text-white shadow-sm hover:bg-orange-700 focus-ring"
+                >
+                  دەست پێبکە
                 </Link>
-                <Link href="/opportunities" className="w-full sm:w-auto">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    <Search className="w-4 h-4 ms-2 text-slate-400" />
-                    <span>گەڕان لە دەرفەتەکان</span>
-                  </Button>
+                <Link
+                  href="/opportunities"
+                  className="pressable inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold text-orange-700 hover:bg-orange-50 focus-ring"
+                >
+                  <Search className="h-4 w-4" aria-hidden="true" />
+                  گەڕان لە دەرفەتەکان
                 </Link>
-              </div>
-            </StaggerItem>
-
-            {/* Micro stats banner */}
-            <StaggerItem className="w-full">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto mt-14 sm:mt-18 pt-8 border-t border-slate-200/80">
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">١٠٠٪</span>
-                  <span className="text-xs text-slate-500 mt-0.5">بە زمانی کوردی</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-orange-600">AI</span>
-                  <span className="text-xs text-slate-500 mt-0.5">شیکاری و هاوتاکردن</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">CV</span>
-                  <span className="text-xs text-slate-500 mt-0.5">سیڤیی دیجیتاڵی بەڵگەدار</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">بێ بەرامبەر</span>
-                  <span className="text-xs text-slate-500 mt-0.5">بۆ گشت خوێندکاران</span>
-                </div>
               </div>
             </StaggerItem>
           </StaggerContainer>
         </div>
       </section>
 
-      {/* Value Pillars */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SlideUp className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
-              چۆن کار دەکات؟
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-3 mb-3">
-              چوار هەنگاو بەرەو داهاتوویەکی پڕ لە ئەزموون
-            </h2>
-            <p className="text-sm sm:text-base text-slate-500">
-              چیتر پێویست ناکات بەنێو دەیان پەیجی تۆڕە کۆمەڵایەتییەکان بگەڕێیت بۆ دۆزینەوەی چالاکییەک.
+      {/* How it works */}
+      <section className="relative overflow-hidden py-20 sm:py-28">
+        <FloatingIcons />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <SlideUp className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="text-[13px] font-semibold text-orange-700">چۆن کار دەکات؟</p>
+            <h2 className="mt-3 text-[28px] font-bold leading-snug text-slate-900 sm:text-4xl">چوار هەنگاو بەرەو داهاتوویەکی پڕ لە ئەزموون</h2>
+            <p className="mt-4 text-[15px] leading-7 text-slate-500">
+              چیتر پێویست ناکات بەنێو دەیان پەیجی تۆڕە کۆمەڵایەتییەکاندا بگەڕێیت بۆ دۆزینەوەی چالاکییەک.
             </p>
           </SlideUp>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Feature 1 */}
-            <StaggerItem>
-              <Card className="relative overflow-hidden border-orange-100 p-6 h-full">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-4 shadow-md shadow-orange-500/20">
-                  <Target className="w-6 h-6" />
+          <StaggerContainer className="grid gap-px overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-200/80 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map(({ icon: Icon, title, text }, index) => (
+              <StaggerItem key={title} className="h-full">
+                <div className="flex h-full flex-col bg-white p-6 sm:p-7">
+                  <div className="flex items-center justify-between">
+                    <Icon className="h-6 w-6 text-orange-600" aria-hidden="true" />
+                    <span className="text-[13px] font-semibold text-slate-300">{(index + 1).toLocaleString("ckb")}</span>
+                  </div>
+                  <h3 className="mt-6 text-[17px] font-semibold text-slate-900">{title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-500">{text}</p>
                 </div>
-                <CardTitle className="text-lg mb-2">هاوتاکردنی تواناکان</CardTitle>
-                <CardDescription className="text-xs leading-relaxed">
-                  ژیریی دەستکرد دەرفەتەکان هەڵدەسەنگێنێت و بە ڕێژەی لەسەدا (%) و بە هۆکارێکی ڕوون پێت دەڵێت بۆچی بۆت دەگونجێت.
-                </CardDescription>
-              </Card>
-            </StaggerItem>
-
-            {/* Feature 2 */}
-            <StaggerItem>
-              <Card className="relative overflow-hidden border-purple-100 p-6 h-full">
-                <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center mb-4 shadow-md shadow-purple-600/20">
-                  <Users className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-lg mb-2">دۆزینەوەی هاوتیم</CardTitle>
-                <CardDescription className="text-xs leading-relaxed">
-                  پێشنیارکردنی کەسانی خاوەن کارامەیی تەواوکەر (بۆ نموونە: دیزاینەر بۆ پڕۆگرامساز) بۆ بەشداریکردن لە هاوپڕۆژەکان.
-                </CardDescription>
-              </Card>
-            </StaggerItem>
-
-            {/* Feature 3 */}
-            <StaggerItem>
-              <Card className="relative overflow-hidden border-emerald-100 p-6 h-full">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mb-4 shadow-md shadow-emerald-600/20">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-lg mb-2">ئەرکی گەشەپێدان</CardTitle>
-                <CardDescription className="text-xs leading-relaxed">
-                  وەرگرتنی ٣ ئەرکی بچووک و کرداری بۆ بەرزکردنەوەی تواناکانت کە تەواوکردنیان ڕاستەوخۆ دەچێتە سەر سیڤییەکەت.
-                </CardDescription>
-              </Card>
-            </StaggerItem>
-
-            {/* Feature 4 */}
-            <StaggerItem>
-              <Card className="relative overflow-hidden border-blue-100 p-6 h-full">
-                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-4 shadow-md shadow-blue-600/20">
-                  <Award className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-lg mb-2">سیڤیی دیجیتاڵی</CardTitle>
-                <CardDescription className="text-xs leading-relaxed">
-                  بەشداریکردنی سەلمێنراو لە چالاکییەکان و ئەرکە تەواوکراوەکان دەبنە بەڵگەی ڕاستەقینەی لێهاتووییت بۆ بازاڕی کار.
-                </CardDescription>
-              </Card>
-            </StaggerItem>
+              </StaggerItem>
+            ))}
           </StaggerContainer>
         </div>
       </section>
 
-      {/* Sample Opportunities Feed */}
-      <section className="py-16 md:py-24 bg-slate-50 border-t border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SlideUp className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+      {/* Latest opportunities */}
+      <section className="border-t border-slate-200/70 bg-slate-50 py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <SlideUp className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <span className="text-xs font-bold text-orange-600 bg-orange-100/70 px-2.5 py-1 rounded-full">
-                نموونەی چالاکییەکان
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-                دەرفەتە نوێ و بەردەستەکان
-              </h2>
+              <p className="text-[13px] font-semibold text-orange-700">نموونەی چالاکییەکان</p>
+              <h2 className="mt-2 text-[28px] font-bold text-slate-900 sm:text-[32px]">دەرفەتە نوێ و بەردەستەکان</h2>
             </div>
-            <Link href="/opportunities">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto px-8">
-                <Search className="w-4 h-4 ms-2" />
-                گەڕان
-              </Button>
+            <Link href="/opportunities" className="inline-flex items-center gap-1.5 rounded text-[15px] font-semibold text-orange-700 hover:text-orange-800 focus-ring">
+              هەموو دەرفەتەکان
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </Link>
           </SlideUp>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {sampleOpportunities.map((item, idx) => (
-              <SpotlightCard key={item.id} item={item} index={idx} />
+          <StaggerContainer className="grid gap-5 md:grid-cols-3">
+            {opportunities.map((item) => (
+              <StaggerItem key={item.id} className="h-full">
+                <SpotlightCard item={item} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section className="py-16 bg-slate-900 text-white text-center overflow-hidden">
-        <ScaleIn className="max-w-3xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            ئێستا دەست پێبکە
-          </h2>
-          <p className="text-slate-400 mb-8">
-            خۆت تۆمار بکە و دەست بکە بە گەڕان بۆ دۆزینەوەی ئەو دەرفەتانەی گونجاون بۆت.
-          </p>
-          <Link href="/login">
-            <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 px-8">
-              خۆت تۆمار بکە
-            </Button>
-          </Link>
-        </ScaleIn>
-      </section>
     </div>
   );
 }

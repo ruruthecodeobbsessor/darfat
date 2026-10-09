@@ -1,85 +1,172 @@
 @import "tailwindcss";
 
+/* Brand typeface, served from public/fonts. */
+@font-face {
+  font-family: "QAIDAR Hewal036";
+  src: url("/fonts/UniQAIDAR_Hewal036.woff2") format("woff2");
+  font-display: swap;
+}
+
+/*
+ * Darfat design system — tokens.
+ * Every page uses Tailwind's orange-* and slate-* utilities, so the palette is defined here once:
+ * orange is the refined brand color, slate is a warm, Apple-like neutral ramp.
+ */
+@theme {
+  /* Vazirmatn stays as a fallback for any characters QAIDAR Hewal036 doesn't include. */
+  --font-sans: "QAIDAR Hewal036", var(--font-vazirmatn), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Brand — 600 is the action color (4.67:1 with white text); 500 is for small accents only. */
+  --color-orange-50: #fff5ed;
+  --color-orange-100: #ffe9d8;
+  --color-orange-200: #fdd0ad;
+  --color-orange-300: #fbb07c;
+  --color-orange-400: #f78c4a;
+  --color-orange-500: #ef6a1f;
+  --color-orange-600: #c4500b;
+  --color-orange-700: #a8440c;
+  --color-orange-800: #86370f;
+  --color-orange-900: #6e2f10;
+  --color-orange-950: #3c1505;
+
+  /* Neutrals — 500 is secondary text (5.07:1 on white), 400 is for icons and placeholders. */
+  --color-slate-50: #f7f7f8;
+  --color-slate-100: #f0f0f2;
+  --color-slate-200: #e4e4e7;
+  --color-slate-300: #d1d1d6;
+  --color-slate-400: #a1a1a6;
+  --color-slate-500: #6e6e73;
+  --color-slate-600: #545458;
+  --color-slate-700: #3a3a3c;
+  --color-slate-800: #2c2c2e;
+  --color-slate-900: #1d1d1f;
+  --color-slate-950: #111112;
+
+  /* Arabic-script text must not be letter-spaced (it breaks cursive joining), so tracking stays neutral. */
+  --tracking-tighter: 0em;
+  --tracking-tight: 0em;
+
+  /* Four weights only; "extrabold" resolves to bold so headings share one weight. */
+  --font-weight-extrabold: 700;
+  --font-weight-black: 700;
+
+  /* Soft, layered shadows — depth without heaviness. */
+  --shadow-xs: 0 1px 1px rgb(0 0 0 / 0.03);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+  --shadow-md: 0 4px 14px -4px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 14px 36px -10px rgb(0 0 0 / 0.14), 0 4px 10px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 28px 70px -18px rgb(0 0 0 / 0.22);
+
+  /* Motion — one easing curve for UI state changes. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
-    --primary: #f97316;
-    --primary-hover: #ea580c;
-    --primary-light: #fff7ed;
-    --primary-ring: rgba(249, 115, 22, 0.35);
-    
-    --card: #ffffff;
-    --card-foreground: #0f172a;
-    
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    
-    --border: #e2e8f0;
-    --ring: #f97316;
-    --radius: 0.875rem;
+    --background: #f7f7f8;
+    --foreground: #1d1d1f;
+    --primary: #c4500b;
+    --primary-ring: rgb(239 106 31 / 0.28);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    direction: rtl;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    background: rgb(239 106 31 / 0.22);
+    color: inherit;
+  }
+
+  /* Pointer cursor on every enabled interactive control. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for],
+  select:not(:disabled) {
+    cursor: pointer;
   }
 }
 
+/* Thin, quiet scrollbars. */
 * {
-  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d1d6 transparent;
 }
 
-html {
-  scroll-behavior: smooth;
-  direction: rtl;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-vazirmatn), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  min-height: 100vh;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Accessible focus ring utility */
 /* Edge adds its own eye to password fields; keep the app's single control. */
 input[data-password-toggle="custom"]::-ms-reveal {
   display: none;
 }
 
+/* Accessible focus ring, shown for keyboard focus only. */
 .focus-ring {
   outline: none;
-  transition: box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 150ms var(--ease-out), border-color 150ms var(--ease-out);
 }
 
 .focus-ring:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-ring);
-  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-ring);
+  border-color: var(--color-orange-500);
+}
+
+/* Instant press feedback on tappable surfaces (on pointer-down, not release). */
+.pressable {
+  transition: transform 120ms var(--ease-out), background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out), color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+}
+
+.pressable:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Translucent chrome (top bar, sheets): content scrolls underneath. */
+.material {
+  background-color: rgb(255 255 255 / 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .material {
+    background-color: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .material {
+    background-color: #ffffff;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .pressable:active:not(:disabled) {
+    transform: none;
   }
 }

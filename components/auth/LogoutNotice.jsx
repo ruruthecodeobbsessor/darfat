@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Alert } from "@/components/ui/alert";
 
 export function LogoutNotice({ message }) {
   const [visible, setVisible] = useState(true);
@@ -20,7 +21,5 @@ export function LogoutNotice({ message }) {
 
   if (!visible) return null;
 
-  return <div role="status" className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-800">
-    {message}
-  </div>;
+  return <Alert tone="success" className="mb-6">{message}</Alert>;
 }

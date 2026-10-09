@@ -15,8 +15,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     agentFeedback: true,
-    // Profile photos (max 2MB) are uploaded through a Server Action.
-    serverActions: { bodySizeLimit: "3mb" },
+    // Profile photos (max 2MB) and post photos (max 5MB) are uploaded through Server Actions.
+    serverActions: { bodySizeLimit: "6mb" },
   },
   cacheComponents: true,
   partialPrefetching: true,

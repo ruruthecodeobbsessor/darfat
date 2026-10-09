@@ -1,9 +1,9 @@
 import { query } from '@/lib/db';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-react';
-import { OPPORTUNITY_TYPES } from '@/lib/constants';
-import { SlideUp, StaggerContainer, StaggerItem } from '@/components/ui/animations';
+import { ArrowRight, Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-react';
+import { getOpportunityType } from '@/lib/constants';
+import { SlideUp } from '@/components/ui/animations';
 
 import { connection } from 'next/server';
 
@@ -25,6 +25,15 @@ export async function generateMetadata({ params }) {
   return { title: "وردەکاری دەرفەت | دەرفەت" };
 }
 
+function DetailSection({ title, body }) {
+  return (
+    <section>
+      <h2 className="text-[19px] font-semibold text-slate-900">{title}</h2>
+      <p className="mt-3 whitespace-pre-wrap text-[15px] leading-8 text-slate-600">{body}</p>
+    </section>
+  );
+}
+
 export default async function OpportunityDetail({ params }) {
   await connection();
   const { id } = await params;
@@ -33,99 +42,78 @@ export default async function OpportunityDetail({ params }) {
   
   const opp = res.rows[0];
 
+  const type = getOpportunityType(opp.type);
+  const deadline = opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات';
+  const sections = [
+    { title: 'وردەکارییەکان', body: opp.description || 'زانیاری زیاتر بەردەست نییە.' },
+    { title: 'سوودەکان', body: opp.benefits },
+    { title: 'چۆنیەتی بەشداریکردن', body: opp.how_to_apply },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="mb-6">
-        <Link href="/opportunities" className="text-orange-600 hover:underline text-sm flex items-center gap-2">
-           گەڕانەوە بۆ دەرفەتەکان
-        </Link>
-      </div>
-      
-      <SlideUp className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
-        <StaggerContainer>
-          <StaggerItem className="mb-6">
-            {opp.type && OPPORTUNITY_TYPES[opp.type] ? (
-              <span className={`text-xs font-medium px-3 py-1.5 rounded-full mb-4 inline-block border ${OPPORTUNITY_TYPES[opp.type].badgeClass}`}>
-                {OPPORTUNITY_TYPES[opp.type].label}
-              </span>
-            ) : (
-              <span className="text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 px-3 py-1.5 rounded-full mb-4 inline-block">
-                {opp.type || 'نەزانراو'}
-              </span>
-            )}
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">{opp.title}</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-slate-400" />
-                <span>{opp.organizer || 'نەزانراو'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-slate-400" />
-                <span>{opp.location || 'نەزانراو'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-slate-400" />
-                <span>{opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات'}</span>
-              </div>
-            </div>
-          </StaggerItem>
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <Link href="/opportunities" className="mb-8 inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-medium text-slate-500 hover:text-slate-900 focus-ring">
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        گەڕانەوە بۆ دەرفەتەکان
+      </Link>
 
-          <hr className="my-8 border-slate-100" />
-
-          <div className="space-y-8">
-            <StaggerItem>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">وردەکارییەکان</h2>
-              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.description || 'زانیاری زیاتر بەردەست نییە.'}</p>
-            </StaggerItem>
-
-            {opp.required_skills && opp.required_skills.length > 0 && (
-              <StaggerItem>
-                <h2 className="text-xl font-bold text-slate-900 mb-3">توانا داواکراوەکان</h2>
-                <div className="flex flex-wrap gap-2">
-                  {opp.required_skills.map((skill, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-sm text-slate-700">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </StaggerItem>
-            )}
-
-            {opp.benefits && (
-              <StaggerItem>
-                <h2 className="text-xl font-bold text-slate-900 mb-3">سوودەکان</h2>
-                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.benefits}</p>
-              </StaggerItem>
-            )}
-
-            {opp.how_to_apply && (
-              <StaggerItem>
-                <h2 className="text-xl font-bold text-slate-900 mb-3">چۆنیەتی بەشداریکردن</h2>
-                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{opp.how_to_apply}</p>
-              </StaggerItem>
-            )}
-          </div>
-
-          <StaggerItem className="mt-10 flex flex-col sm:flex-row gap-4">
-            <form action={async () => {
-              'use server';
-              await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
-            }}>
-              <button type="submit" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
-                <CheckCircle className="w-5 h-5" />
-                بەشدارم
-              </button>
-            </form>
-
-            {opp.link && (
-              <a href={opp.link} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
-                <ExternalLink className="w-5 h-5" />
-                لینکی فەرمی
-              </a>
-            )}
-          </StaggerItem>
-        </StaggerContainer>
+      <SlideUp>
+        <header className="max-w-3xl">
+          <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px] font-medium ${type.tileClass}`}>
+            {type.label}
+          </span>
+          <h1 className="mt-4 text-[28px] font-bold leading-snug text-slate-900 sm:text-[36px] sm:leading-tight">{opp.title}</h1>
+          <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[15px] text-slate-500">
+            <li className="flex items-center gap-2"><Briefcase className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{opp.organizer || 'نەزانراو'}</li>
+            <li className="flex items-center gap-2"><MapPin className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{opp.location || 'نەزانراو'}</li>
+            <li className="flex items-center gap-2"><Calendar className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{deadline}</li>
+          </ul>
+        </header>
       </SlideUp>
+
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        {/* Actions: first on mobile, a sticky panel beside the content on desktop. */}
+        <aside className="lg:sticky lg:top-24 lg:order-last">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <dl className="mb-5 space-y-1">
+              <dt className="text-[13px] text-slate-500">دوا وادەی بەشداری</dt>
+              <dd className="text-[17px] font-semibold text-slate-900">{deadline}</dd>
+            </dl>
+            <div className="flex flex-col gap-2.5">
+              <form action={async () => {
+                'use server';
+                await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
+              }}>
+                <button type="submit" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-600 text-[15px] font-semibold text-white shadow-sm hover:bg-orange-700 focus-ring">
+                  <CheckCircle className="h-5 w-5" aria-hidden="true" />
+                  بەشدارم
+                </button>
+              </form>
+              {opp.link && (
+                <a href={opp.link} target="_blank" rel="noopener noreferrer" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-[15px] font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 focus-ring">
+                  <ExternalLink className="h-[18px] w-[18px]" aria-hidden="true" />
+                  لینکی فەرمی
+                </a>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        <article className="space-y-10">
+          {sections.slice(0, 1).map((section) => <DetailSection key={section.title} {...section} />)}
+          {opp.required_skills && opp.required_skills.length > 0 && (
+            <section>
+              <h2 className="text-[19px] font-semibold text-slate-900">توانا داواکراوەکان</h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {opp.required_skills.map((skill, idx) => (
+                  <li key={idx} className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm text-slate-700">{skill}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {sections.slice(1).filter((section) => section.body).map((section) => <DetailSection key={section.title} {...section} />)}
+        </article>
+      </div>
     </div>
   );
 }

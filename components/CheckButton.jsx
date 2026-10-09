@@ -24,10 +24,10 @@ export function CheckButton({ sourceId }) {
   };
 
   return (
-    <button 
-      onClick={handleCheck} 
+    <button
+      onClick={handleCheck}
       disabled={loading}
-      className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+      className="pressable inline-flex h-9 items-center gap-2 rounded-lg bg-orange-50 px-3 text-[13px] font-semibold text-orange-800 hover:bg-orange-100 focus-ring disabled:opacity-50"
     >
       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
       پشکنین

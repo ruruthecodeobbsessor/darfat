@@ -1,52 +1,25 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Camera, Cake, Check, Heart, Mail, MapPin, Pencil, TrendingUp, Wrench, X } from "lucide-react";
+import { Cake, Camera, Check, Heart, Mail, MapPin, Pencil, Wrench, X } from "lucide-react";
 import { updateProfile, uploadAvatar } from "@/app/profile/actions";
 import { CITIES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import { controlClass, errorTextClass, hintClass, labelClass } from "@/components/ui/field";
+import { UserAvatar } from "@/components/social/UserAvatar";
 import { SignOutButton } from "@/components/auth/SignOutButton";
+import { FollowStats } from "@/components/social/FollowStats";
 
-function getInitials(name) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
-}
-
-function fieldClass(hasError = false) {
-  return `min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-4 focus-visible:ring-orange-100 ${
-    hasError ? "border-red-500 focus-visible:border-red-600" : "border-slate-300 focus-visible:border-orange-500"
-  }`;
-}
-
-function ProfileField({ id, label, error, hint, children }) {
+function ProfileField({ id, label, error, hint, className, children }) {
   return (
-    <div className="space-y-2">
-      <label htmlFor={id} className="block text-sm font-semibold text-slate-800">
+    <div className={`space-y-1.5 ${className ?? ""}`}>
+      <label htmlFor={id} className={labelClass}>
         {label}
       </label>
       {children}
-      {hint && !error && <p className="text-xs leading-5 text-slate-500">{hint}</p>}
-      {error && <p className="text-sm text-red-700">{error}</p>}
-    </div>
-  );
-}
-
-function Avatar({ name, url, size = "h-24 w-24 text-3xl" }) {
-  if (url) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt={`وێنەی پڕۆفایلی ${name}`} className={`${size} shrink-0 rounded-2xl object-cover`} />;
-  }
-  return (
-    <div
-      className={`${size} flex shrink-0 items-center justify-center rounded-2xl bg-orange-100 font-extrabold text-orange-800`}
-      aria-label={`وێنەی پڕۆفایلی ${name}`}
-    >
-      {getInitials(name) || "؟"}
+      {hint && !error && <p className={hintClass}>{hint}</p>}
+      {error && <p className={errorTextClass}>{error}</p>}
     </div>
   );
 }
@@ -62,7 +35,7 @@ function AvatarUploader({ name, url, onUploaded }) {
 
   return (
     <form ref={formRef} action={action} className="relative shrink-0">
-      <Avatar name={name} url={url} />
+      <UserAvatar name={name} url={url} className="h-24 w-24 text-3xl sm:h-28 sm:w-28" />
       <input
         ref={inputRef}
         type="file"
@@ -76,23 +49,31 @@ function AvatarUploader({ name, url, onUploaded }) {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={pending}
-        className="absolute -bottom-2 -end-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-orange-500 text-white shadow-md hover:bg-orange-600 disabled:opacity-60"
+        className="pressable absolute bottom-0 end-0 flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-md ring-1 ring-slate-900/10 hover:text-orange-700 focus-ring disabled:opacity-60"
         aria-label="گۆڕینی وێنەی پڕۆفایل"
         title="گۆڕینی وێنە"
       >
-        {pending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Camera className="h-4 w-4" aria-hidden="true" />}
+        {pending ? (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" aria-hidden="true" />
+        ) : (
+          <Camera className="h-4 w-4" aria-hidden="true" />
+        )}
       </button>
-      {state.error && <p className="absolute top-full mt-3 w-48 text-xs text-red-700" role="alert">{state.error}</p>}
+      {state.error && (
+        <p className="absolute top-full mt-3 w-52 text-xs text-red-700" role="alert">
+          {state.error}
+        </p>
+      )}
     </form>
   );
 }
 
-function TagList({ items, tone = "border-slate-200 bg-slate-50 text-slate-700" }) {
+function TagList({ items, tone = "bg-slate-100 text-slate-700" }) {
   if (!items.length) return <p className="mt-2 text-sm text-slate-400">هێشتا هیچ شتێک زیاد نەکراوە.</p>;
   return (
     <ul className="mt-3 flex flex-wrap gap-2">
       {items.map((item) => (
-        <li key={item} className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${tone}`}>
+        <li key={item} className={`rounded-full px-3 py-1 text-[13px] font-medium ${tone}`}>
           {item}
         </li>
       ))}
@@ -100,7 +81,17 @@ function TagList({ items, tone = "border-slate-200 bg-slate-50 text-slate-700" }
   );
 }
 
-export default function ProfileExperience({ initialProfile }) {
+function SectionTitle({ icon: Icon, children }) {
+  return (
+    <h3 className="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
+      {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
+      {children}
+    </h3>
+  );
+}
+
+// One Instagram-style card: header with stats, about, then whatever the page adds (composer, posts).
+export default function ProfileExperience({ initialProfile, userId, stats, children }) {
   const [profile, setProfile] = useState(initialProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [state, action, pending] = useActionState(async (previous, formData) => {
@@ -114,105 +105,83 @@ export default function ProfileExperience({ initialProfile }) {
   const errors = state.errors ?? {};
 
   return (
-    <section className="flex-1 bg-slate-50 px-4 py-10 sm:py-14">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+    <section className="px-4 pb-16 pt-10 sm:px-6 sm:pt-14 lg:px-8">
+      <div className="mx-auto max-w-3xl">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-800">
-              <TrendingUp className="h-4 w-4 text-orange-600" aria-hidden="true" />
-              گەشەکردن لەگەڵ دەرفەت
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">پڕۆفایلی من</h1>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+            <h1 className="text-[28px] font-bold text-slate-900 sm:text-[34px]">پڕۆفایلی من</h1>
+            <p className="mt-2 max-w-xl text-[15px] leading-7 text-slate-500">
               ئەم زانیارییانە لە گفتوگۆی سەرەتاوە وەرگیراون. هەر کاتێک بتەوێت دەستکارییان بکە.
             </p>
           </div>
           {!isEditing && (
-            <div className="flex flex-col gap-3 self-start sm:self-auto sm:flex-row sm:items-center">
-              <div
-                className="hidden sm:flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-lg font-extrabold text-orange-800"
-                aria-label={`وێنەی پڕۆفایلی ${profile.name}`}
-              >
-                {getInitials(profile.name || "")}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="outline"
-                  className="min-h-11"
-                >
-                  <Pencil className="h-4 w-4 me-1.5" aria-hidden="true" />
-                  دەستکاریکردنی پڕۆفایل
-                </Button>
-                <SignOutButton />
-              </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsEditing(true)} variant="outline">
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                دەستکاریکردن
+              </Button>
+              <SignOutButton />
             </div>
           )}
         </div>
 
         {state.message && !isEditing && (
-          <div role="status" className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <Alert tone="success" className="mb-6">
             {state.message}
-          </div>
+          </Alert>
         )}
 
-        <Card className="overflow-hidden border-slate-200 bg-white p-0 shadow-none">
-          <div className="h-2 bg-orange-500" />
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-col gap-6 border-b border-slate-200 pb-8 sm:flex-row sm:items-center">
-              <AvatarUploader
-                name={profile.name}
-                url={profile.avatarUrl}
-                onUploaded={(avatarUrl) => setProfile((current) => ({ ...current, avatarUrl }))}
-              />
-              <div className="min-w-0">
-                <div className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
-                  <Check className="h-4 w-4" aria-hidden="true" />
-                  پڕۆفایل ئامادەیە
-                </div>
-                <h2 className="break-words text-2xl font-extrabold text-slate-950">{profile.name || "بێ ناو"}</h2>
-                {profile.headline && <p className="mt-1 text-base font-medium text-orange-800">{profile.headline}</p>}
-                <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-600">
-                  {profile.city && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-orange-700" aria-hidden="true" />
-                      {profile.city}
-                    </span>
-                  )}
-                  {profile.age && (
-                    <span className="flex items-center gap-1.5">
-                      <Cake className="h-4 w-4 text-orange-700" aria-hidden="true" />
-                      {profile.age} ساڵ
-                    </span>
-                  )}
-                  {profile.email && (
-                    <span className="flex items-center gap-1.5" dir="ltr">
-                      <Mail className="h-4 w-4 text-orange-700" aria-hidden="true" />
-                      {profile.email}
-                    </span>
-                  )}
-                </div>
-              </div>
+        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs">
+          <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
+            <AvatarUploader
+              name={profile.name}
+              url={profile.avatarUrl}
+              onUploaded={(avatarUrl) => setProfile((current) => ({ ...current, avatarUrl }))}
+            />
+            <div className="min-w-0">
+              <h2 className="break-words text-[24px] font-bold leading-tight text-slate-900">{profile.name || "بێ ناو"}</h2>
+              {stats && <FollowStats stats={stats} userId={userId} bare className="mt-1.5" />}
+              {profile.headline && <p className="mt-2.5 text-[15px] text-slate-600">{profile.headline}</p>}
+              <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-slate-500">
+                {profile.city && (
+                  <li className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {profile.city}
+                  </li>
+                )}
+                {profile.age && (
+                  <li className="flex items-center gap-1.5">
+                    <Cake className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {profile.age} ساڵ
+                  </li>
+                )}
+                {profile.email && (
+                  <li className="flex items-center gap-1.5" dir="ltr">
+                    <Mail className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {profile.email}
+                  </li>
+                )}
+              </ul>
             </div>
+          </div>
 
+          <div className="border-t border-slate-100 p-6 sm:p-8">
             {isEditing ? (
-              <form action={action} noValidate className="pt-8">
+              <form action={action} noValidate>
                 {state.error && (
-                  <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  <Alert tone="error" className="mb-6">
                     {state.error}
-                  </div>
+                  </Alert>
                 )}
                 <div className="grid gap-5 sm:grid-cols-2">
                   <ProfileField id="name" label="ناوی تەواو" error={errors.name}>
-                    <input id="name" name="name" defaultValue={profile.name} maxLength={100} autoComplete="name" className={fieldClass(Boolean(errors.name))} required />
+                    <input id="name" name="name" defaultValue={profile.name} maxLength={100} autoComplete="name" className={controlClass({ error: Boolean(errors.name), className: "h-11" })} required />
                   </ProfileField>
-                  <div className="sm:col-span-2">
-                    <ProfileField id="headline" label="ناونیشانی کورت" hint="یەک دێڕ دەربارەی خۆت، بۆ نموونە: خوێندکاری کۆمپیوتەر و دیزاینەری UI">
-                      <input id="headline" name="headline" defaultValue={profile.headline} maxLength={80} className={fieldClass()} />
-                    </ProfileField>
-                  </div>
+                  <ProfileField id="headline" label="ناونیشانی کورت" hint="یەک دێڕ دەربارەی خۆت، بۆ نموونە: خوێندکاری کۆمپیوتەر و دیزاینەری UI">
+                    <input id="headline" name="headline" defaultValue={profile.headline} maxLength={80} className={controlClass({ className: "h-11" })} />
+                  </ProfileField>
                   <ProfileField id="city" label="شار">
-                    <input id="city" name="city" defaultValue={profile.city} maxLength={60} list="city-options" placeholder="شارەکەت" className={fieldClass()} />
+                    <input id="city" name="city" defaultValue={profile.city} maxLength={60} list="city-options" placeholder="شارەکەت" className={controlClass({ className: "h-11" })} />
                     <datalist id="city-options">
                       {CITIES.map((city) => (
                         <option key={city} value={city} />
@@ -220,62 +189,51 @@ export default function ProfileExperience({ initialProfile }) {
                     </datalist>
                   </ProfileField>
                   <ProfileField id="age" label="تەمەن" error={errors.age}>
-                    <input id="age" name="age" defaultValue={profile.age ?? ""} inputMode="numeric" maxLength={3} className={fieldClass(Boolean(errors.age))} />
+                    <input id="age" name="age" defaultValue={profile.age ?? ""} inputMode="numeric" maxLength={3} className={controlClass({ error: Boolean(errors.age), className: "h-11" })} />
                   </ProfileField>
-                  <div className="hidden sm:block" />
-                  <div className="sm:col-span-2">
-                    <ProfileField id="interests" label="حەز و ئارەزووەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە.">
-                      <input id="interests" name="interests" defaultValue={profile.interests.join("، ")} className={fieldClass()} placeholder="تەکنەلۆژیا، هونەر، خۆبەخشی" />
-                    </ProfileField>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <ProfileField id="skills" label="لێهاتوویی و شارەزاییەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە.">
-                      <input id="skills" name="skills" defaultValue={profile.skills.join("، ")} className={fieldClass()} placeholder="پڕۆگرامسازی، دیزاین، نووسین" />
-                    </ProfileField>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <ProfileField id="bio" label="دەربارەی من">
-                      <textarea id="bio" name="bio" rows={4} maxLength={500} defaultValue={profile.bio} className={`${fieldClass()} resize-y`} placeholder="بە کورتی باسی خۆت و ئامانجەکانت بکە..." />
-                    </ProfileField>
-                  </div>
+                  <ProfileField id="interests" label="حەز و ئارەزووەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە." className="sm:col-span-2">
+                    <input id="interests" name="interests" defaultValue={profile.interests.join("، ")} className={controlClass({ className: "h-11" })} placeholder="تەکنەلۆژیا، هونەر، خۆبەخشی" />
+                  </ProfileField>
+                  <ProfileField id="skills" label="لێهاتوویی و شارەزاییەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە." className="sm:col-span-2">
+                    <input id="skills" name="skills" defaultValue={profile.skills.join("، ")} className={controlClass({ className: "h-11" })} placeholder="پڕۆگرامسازی، دیزاین، نووسین" />
+                  </ProfileField>
+                  <ProfileField id="bio" label="دەربارەی من" className="sm:col-span-2">
+                    <textarea id="bio" name="bio" rows={4} maxLength={500} defaultValue={profile.bio} className={controlClass({ className: "resize-y py-3 leading-7" })} placeholder="بە کورتی باسی خۆت و ئامانجەکانت بکە..." />
+                  </ProfileField>
                 </div>
-                <div className="mt-7 flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)} disabled={pending} className="min-h-11">
+                <div className="mt-8 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={pending}>
                     <X className="h-4 w-4" aria-hidden="true" />
                     پاشگەزبوونەوە
                   </Button>
-                  <Button type="submit" isLoading={pending} className="min-h-11">
+                  <Button type="submit" isLoading={pending}>
                     <Check className="h-4 w-4" aria-hidden="true" />
                     پاشەکەوتکردنی گۆڕانکارییەکان
                   </Button>
                 </div>
               </form>
             ) : (
-              <div className="grid gap-8 pt-8 sm:grid-cols-2">
+              <div className="grid gap-8 sm:grid-cols-2">
                 <section className="sm:col-span-2">
-                  <h3 className="text-sm font-bold text-slate-900">دەربارەی من</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                  <SectionTitle>دەربارەی من</SectionTitle>
+                  <p className="mt-2 whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
                     {profile.bio || <span className="text-slate-400">هێشتا هیچ شتێک نەنووسراوە.</span>}
                   </p>
                 </section>
                 <section>
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                    <Heart className="h-4 w-4 text-orange-700" aria-hidden="true" />
-                    حەز و ئارەزووەکان
-                  </h3>
-                  <TagList items={profile.interests} tone="border-orange-200 bg-orange-50 text-orange-800" />
+                  <SectionTitle icon={Heart}>حەز و ئارەزووەکان</SectionTitle>
+                  <TagList items={profile.interests} tone="bg-orange-50 text-orange-800" />
                 </section>
                 <section>
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                    <Wrench className="h-4 w-4 text-orange-700" aria-hidden="true" />
-                    لێهاتوویی و شارەزاییەکان
-                  </h3>
+                  <SectionTitle icon={Wrench}>لێهاتوویی و شارەزاییەکان</SectionTitle>
                   <TagList items={profile.skills} />
                 </section>
               </div>
             )}
           </div>
-        </Card>
+
+          {children}
+        </div>
       </div>
     </section>
   );

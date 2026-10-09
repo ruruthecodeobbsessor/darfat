@@ -6,6 +6,7 @@ import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { login, register } from "@/app/auth/actions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 
 const labels = { name: "ناوی تەواو", email: "ئیمەیڵ", password: "وشەی نهێنی", confirmPassword: "دووبارەکردنەوەی وشەی نهێنی" };
 const emptyValues = { name: "", email: "", password: "", confirmPassword: "" };
@@ -37,18 +38,17 @@ export function AuthForm({ mode }) {
   return (
     <form action={action} noValidate className="space-y-5" aria-busy={pending || Boolean(state.destination)}>
       {state.message && (
-        <div ref={summary} tabIndex={-1} role={state.success ? "status" : "alert"}
-          className={`rounded-xl border p-4 text-sm leading-relaxed focus-ring ${state.success ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800"}`}>
+        <Alert ref={summary} tabIndex={-1} tone={state.success ? "success" : "error"}>
           <p>{state.message}</p>
           {registering && state.nextAction === "login" && <Link href="/login"
-            className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold text-orange-800 underline underline-offset-4 focus-ring">
+            className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold underline underline-offset-4 focus-ring">
             <LogIn aria-hidden="true" className="h-4 w-4" />
             <span>بچۆ ژوورەوە</span>
           </Link>}
           {state.errors && <ul className="mt-2 space-y-1">
             {Object.entries(state.errors).map(([field, message]) => <li key={field}><a className="underline underline-offset-4" href={`#${field}`}>{message}</a></li>)}
           </ul>}
-        </div>
+        </Alert>
       )}
       <fieldset disabled={pending || Boolean(state.destination)} className="space-y-5 disabled:opacity-70">
         <legend className="sr-only">{registering ? "زانیارییەکانی تۆمارکردن" : "زانیارییەکانی چوونەژوورەوە"}</legend>
@@ -70,24 +70,24 @@ export function AuthForm({ mode }) {
                 onClick={() => setVisiblePasswords((current) => ({ ...current, [field]: !current[field] }))}
                 aria-label={`${visible ? "شاردنەوەی" : "پیشاندانی"} ${labels[field]}`}
                 aria-controls={field} aria-pressed={Boolean(visible)}
-                className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-orange-50 hover:text-orange-800 focus-ring">
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-ring">
                 {visible ? <EyeOff aria-hidden="true" className="h-[18px] w-[18px]" /> : <Eye aria-hidden="true" className="h-[18px] w-[18px]" />}
               </button>} />
           </div>;
         })}
-        {!registering && <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg text-sm font-medium text-slate-700">
-          <input type="checkbox" name="remember" className="h-5 w-5 rounded border-slate-300 accent-orange-700 focus-ring" />
+        {!registering && <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg text-sm text-slate-700">
+          <input type="checkbox" name="remember" className="h-[18px] w-[18px] rounded border-slate-300 accent-orange-600 focus-ring" />
           <span>لەبیرم بهێنەوە</span>
         </label>}
         <Button type="submit" size="lg" isLoading={pending || Boolean(state.destination)}
-          className="w-full bg-orange-700 hover:bg-orange-800 active:bg-orange-900">
-          {registering ? <UserPlus aria-hidden="true" className="h-5 w-5" /> : <LogIn aria-hidden="true" className="h-5 w-5" />}
+          className="w-full">
+          {registering ? <UserPlus aria-hidden="true" className="h-[18px] w-[18px]" /> : <LogIn aria-hidden="true" className="h-[18px] w-[18px]" />}
           <span>{registering ? "دروستکردنی هەژمار" : "چوونەژوورەوە"}</span>
         </Button>
       </fieldset>
-      <p className="text-center text-sm text-slate-600">
+      <p className="border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
         {registering ? "پێشتر هەژمارت هەیە؟" : "هەژمارت نییە؟"}{" "}
-        <Link href={registering ? "/login" : "/register"} className="inline-flex min-h-11 items-center font-semibold text-orange-800 underline-offset-4 hover:underline focus-ring rounded-md">
+        <Link href={registering ? "/login" : "/register"} className="inline-flex min-h-11 items-center rounded-md font-semibold text-orange-700 underline-offset-4 hover:underline focus-ring">
           {registering ? "بچۆ ژوورەوە" : "تۆمار بکە"}
         </Link>
       </p>

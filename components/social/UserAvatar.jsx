@@ -10,14 +10,14 @@ function initials(name = "") {
 export function UserAvatar({ name, url, className = "h-12 w-12 text-base" }) {
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
+    return <img src={url} alt="" className={`${className} shrink-0 rounded-full object-cover ring-1 ring-slate-900/5`} />;
   }
   return (
     <div
-      className={`${className} flex shrink-0 items-center justify-center rounded-full bg-orange-100 font-extrabold text-orange-800`}
+      className={`${className} flex shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-100 to-orange-200/70 font-semibold text-orange-800`}
       aria-hidden="true"
     >
-      {initials(name) || "؟"}
+      {initials(name || "") || "؟"}
     </div>
   );
 }

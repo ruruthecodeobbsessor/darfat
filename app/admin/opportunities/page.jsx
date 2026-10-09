@@ -2,6 +2,8 @@ import { query } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { AddFromTextButton } from './AddFromTextButton';
 import { CheckCircle, XCircle, Briefcase, MapPin, Calendar } from 'lucide-react';
+import { getOpportunityType } from '@/lib/constants';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 
 import { connection } from 'next/server';
 
@@ -29,30 +31,28 @@ export default async function AdminOpportunitiesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">دەرفەتەکان (Opportunities)</h1>
-        <AddFromTextButton />
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <PageContainer size="xl">
+      <PageHeader eyebrow="ئەدمین" title="دەرفەتەکان" description="دەرفەتە ڕەشنووسەکان پەسەند بکە یان بیانسڕەوە." actions={<AddFromTextButton />} />
+
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {opportunities.map(opp => (
-          <div key={opp.id} className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col justify-between hover:border-orange-300 transition-colors">
+          <div key={opp.id} className="card-float flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
             <div>
               <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                  {opp.type}
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                  {getOpportunityType(opp.type).label}
                 </span>
-                <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                  opp.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  opp.status === 'published' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'
                 }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${opp.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'}`} aria-hidden="true" />
                   {opp.status}
                 </span>
               </div>
-              <h3 className="font-semibold text-lg mb-4 line-clamp-2">
+              <h3 className="mb-4 line-clamp-2 text-[17px] font-semibold leading-7 text-slate-900">
                 {opp.title}
               </h3>
-              <div className="space-y-2 text-sm text-slate-600 mb-6">
+              <div className="mb-2 space-y-1.5 text-[13px] text-slate-500">
                 <div className="flex items-center gap-2">
                   <Briefcase className="w-4 h-4" />
                   <span className="line-clamp-1">{opp.organizer || 'نەزانراو'}</span>
@@ -71,13 +71,13 @@ export default async function AdminOpportunitiesPage() {
             {opp.status === 'draft' && (
               <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
                 <form action={approve.bind(null, opp.id)} className="flex-1">
-                  <button type="submit" className="w-full bg-green-50 text-green-600 hover:bg-green-100 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                  <button type="submit" className="pressable flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-50 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 focus-ring">
                     <CheckCircle className="w-4 h-4" />
                     پەسەندکردن
                   </button>
                 </form>
                 <form action={reject.bind(null, opp.id)} className="flex-1">
-                  <button type="submit" className="w-full bg-red-50 text-red-600 hover:bg-red-100 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                  <button type="submit" className="pressable flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-red-50 text-sm font-semibold text-red-700 hover:bg-red-100 focus-ring">
                     <XCircle className="w-4 h-4" />
                     سڕینەوە
                   </button>
@@ -88,11 +88,11 @@ export default async function AdminOpportunitiesPage() {
         ))}
 
         {opportunities.length === 0 && (
-          <div className="col-span-full text-center py-20 text-slate-500">
+          <div className="col-span-full rounded-2xl border border-slate-200/80 bg-white py-16 text-center text-sm text-slate-500">
             هیچ دەرفەتێک نییە. پشکنین ئەنجام بدە بۆ دۆزینەوەی دەرفەتەکان.
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

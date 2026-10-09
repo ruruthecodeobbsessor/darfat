@@ -32,11 +32,11 @@ export function FollowButton({ userId, name, initialFollowing = false, compact =
         aria-pressed={following}
         aria-label={following ? `لابردنی فۆڵۆی ${name}` : `فۆڵۆکردنی ${name}`}
         className={cn(
-          "inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-ring disabled:opacity-70",
-          compact ? "px-4" : "w-full px-4",
+          "pressable inline-flex items-center justify-center gap-2 text-sm font-semibold focus-ring disabled:opacity-70",
+          compact ? "h-10 min-w-24 rounded-full px-4" : "h-11 w-full rounded-xl px-4",
           following
-            ? "border border-slate-300 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
-            : "bg-orange-500 text-white shadow-sm hover:bg-orange-600"
+            ? "bg-slate-100 text-slate-800 hover:bg-slate-200"
+            : "bg-orange-600 text-white shadow-sm hover:bg-orange-700"
         )}
       >
         {!compact && (following ? <UserCheck className="h-4 w-4" aria-hidden="true" /> : <UserPlus className="h-4 w-4" aria-hidden="true" />)}

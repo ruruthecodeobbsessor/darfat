@@ -4,7 +4,6 @@ import { requireAuth } from "@/lib/auth/server";
 import { createClient } from "@/lib/supabase/server";
 import { getFollowStats, getPosts } from "@/lib/social";
 import ProfileExperience from "@/components/profile/ProfileExperience";
-import { FollowStats } from "@/components/social/FollowStats";
 import { PostComposer } from "@/components/social/PostComposer";
 import { PostList } from "@/components/social/PostList";
 import { Spinner } from "@/components/ui/spinner";
@@ -24,33 +23,31 @@ async function ProfileContent() {
 
   // Only the fields the page shows are sent to the browser.
   return (
-    <div className="overflow-hidden">
-      <SlideUp>
-        <ProfileExperience
-          initialProfile={{
-            name: profile.name ?? "",
-            email: profile.email ?? "",
-            city: profile.city ?? "",
-            age: profile.age ?? null,
-            interests: profile.interests ?? [],
-            skills: profile.skills ?? [],
-            headline: profile.headline ?? "",
-            bio: profile.bio ?? "",
-            avatarUrl: profile.avatar_url ?? "",
-          }}
-        />
-      </SlideUp>
-      <SlideUp delay={0.1}>
-        <section className="bg-slate-50 px-4 pb-14" aria-labelledby="my-posts-heading">
-          <div className="mx-auto max-w-5xl space-y-6">
-            <FollowStats stats={stats} />
-            <h2 id="my-posts-heading" className="text-lg font-bold text-slate-900">دەستکەوتەکانم</h2>
-            <PostComposer />
-            <PostList posts={posts} author={profile} isOwner emptyText="هێشتا هیچ پۆستێکت نییە. یەکەم دەستکەوتت بنووسە!" />
-          </div>
+    <SlideUp>
+      <ProfileExperience
+        stats={stats}
+        userId={user.id}
+        initialProfile={{
+          name: profile.name ?? "",
+          email: profile.email ?? "",
+          city: profile.city ?? "",
+          age: profile.age ?? null,
+          interests: profile.interests ?? [],
+          skills: profile.skills ?? [],
+          headline: profile.headline ?? "",
+          bio: profile.bio ?? "",
+          avatarUrl: profile.avatar_url ?? "",
+        }}
+      >
+        <div className="border-t border-slate-100 p-6 sm:p-8">
+          <PostComposer bare />
+        </div>
+        <section className="border-t border-slate-100 p-6 sm:p-8" aria-labelledby="my-posts-heading">
+          <h2 id="my-posts-heading" className="mb-5 text-[17px] font-semibold text-slate-900">دەستکەوتەکانم</h2>
+          <PostList posts={posts} author={profile} isOwner bare emptyText="هێشتا هیچ پۆستێکت نییە. یەکەم دەستکەوتت بنووسە!" />
         </section>
-      </SlideUp>
-    </div>
+      </ProfileExperience>
+    </SlideUp>
   );
 }
 

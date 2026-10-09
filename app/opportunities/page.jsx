@@ -2,13 +2,16 @@ import { Suspense } from 'react';
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/server';
 import { getOpportunityMatches } from '@/lib/opportunity-match';
-import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
-import { Calendar, MapPin, Briefcase, Lightbulb, Sparkles, ArrowLeft } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { OPPORTUNITY_TYPES } from "@/lib/constants";
-import { SlideUp } from "@/components/ui/animations";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { OpportunityCardSkeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "دەرفەتەکان | دەرفەت",
@@ -18,14 +21,44 @@ export const metadata = {
 // The heading renders instantly; the user-specific list streams in behind Suspense.
 export default function OpportunitiesPage({ searchParams }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <SlideUp>
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">دەرفەتەکان</h1>
-      </SlideUp>
-      <Suspense fallback={<Spinner text="دۆزینەوەی دەرفەتە گونجاوەکان..." />}>
+    <PageContainer size="xl">
+      <PageHeader title="دەرفەتەکان" />
+      <Suspense fallback={<OpportunitiesLoading />}>
         <OpportunityResults searchParams={searchParams} />
       </Suspense>
+    </PageContainer>
+  );
+}
+
+function OpportunitiesLoading() {
+  return (
+    <div role="status" aria-label="دۆزینەوەی دەرفەتە گونجاوەکان...">
+      <div className="mb-8 flex gap-2">
+        {[64, 80, 72, 88].map((w) => (
+          <div key={w} className="h-9 animate-pulse rounded-full bg-slate-200/70" style={{ width: w }} />
+        ))}
+      </div>
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <OpportunityCardSkeleton key={i} />
+        ))}
+      </div>
     </div>
+  );
+}
+
+function FilterChip({ href, active, children }) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "pressable inline-flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-medium focus-ring",
+        active ? "bg-orange-600 text-white shadow-sm" : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:text-slate-900 hover:ring-slate-300"
+      )}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -75,37 +108,30 @@ async function OpportunityResults({ searchParams }) {
   return (
     <>
       {/* Filters */}
-      <SlideUp delay={0.1} className="flex gap-2 mb-8 overflow-x-auto pb-2">
-        <Link href="/opportunities">
-          <span className={`px-4 py-2 rounded-full border border-orange-200 text-sm whitespace-nowrap ${!typeFilter ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-50'}`}>
-            هەمووی
-          </span>
-        </Link>
+      <nav aria-label="جۆری دەرفەت" className="-mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
+        <FilterChip href="/opportunities" active={!typeFilter}>هەمووی</FilterChip>
         {Object.values(OPPORTUNITY_TYPES).map(t => (
-          <Link key={t.id} href={`/opportunities?type=${t.id}`}>
-            <span className={`px-4 py-2 rounded-full border border-orange-200 text-sm whitespace-nowrap ${typeFilter === t.id ? 'bg-orange-500 text-white' : 'bg-white text-orange-600 hover:bg-orange-50'}`}>
-              {t.label}
-            </span>
-          </Link>
+          <FilterChip key={t.id} href={`/opportunities?type=${t.id}`} active={typeFilter === t.id}>{t.label}</FilterChip>
         ))}
-      </SlideUp>
+      </nav>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-        {opportunities.map((opp, idx) => (
-          <SpotlightCard key={opp.id} item={opp} index={idx} />
-        ))}
-
-        {opportunities.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-              <Briefcase className="w-8 h-8 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-1">هیچ دەرفەتێک نەدۆزرایەوە</h3>
-            <p className="text-sm text-slate-500">هەوڵبدە مەرجەکانی گەڕانەکەت بگۆڕیت.</p>
-          </div>
-        )}
-      </div>
+      {opportunities.length === 0 ? (
+        <EmptyState icon={Briefcase} title="هیچ دەرفەتێک نەدۆزرایەوە" description="هەوڵبدە مەرجەکانی گەڕانەکەت بگۆڕیت.">
+          {typeFilter && (
+            <Link href="/opportunities" className="rounded text-sm font-semibold text-orange-700 hover:text-orange-800 focus-ring">
+              بینینی هەموو دەرفەتەکان
+            </Link>
+          )}
+        </EmptyState>
+      ) : (
+        <StaggerContainer className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {opportunities.map((opp) => (
+            <StaggerItem key={opp.id} className="h-full">
+              <SpotlightCard item={opp} />
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      )}
     </>
   );
 }
