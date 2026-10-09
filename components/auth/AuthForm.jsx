@@ -79,7 +79,7 @@ export function AuthForm({ mode }) {
         })}
         {!registering && <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg text-sm text-slate-700">
           <input type="checkbox" name="remember" className="h-[18px] w-[18px] rounded border-slate-300 accent-orange-600 focus-ring" />
-          <span>{localize("لەبیرم بهێنەوە")}</span>
+          <span>{localize("منت بیربێت")}</span>
         </label>}
         <Button type="submit" size="lg" isLoading={pending || Boolean(state.destination)}
           className="w-full">
