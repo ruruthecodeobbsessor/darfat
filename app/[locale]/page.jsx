@@ -50,6 +50,7 @@ const SAMPLE_OPPORTUNITIES = [
     location: "هەولێر",
     date: "١٥ تشرینی دووەم ٢٠٢٦",
     skills: ["React", "Python", "UI/UX"],
+    link: "https://auis.edu.krd",
   },
   {
     id: "2",
@@ -59,6 +60,7 @@ const SAMPLE_OPPORTUNITIES = [
     location: "سلێمانی",
     date: "٢٠ تشرینی دووەم ٢٠٢٦",
     skills: ["سەرکردایەتی", "ڕێکخستن", "پەیوەندییەکان"],
+    link: "https://www.rwanga.org",
   },
   {
     id: "3",
@@ -68,6 +70,7 @@ const SAMPLE_OPPORTUNITIES = [
     location: "دهۆک (ئۆنلاین)",
     date: "٢٨ تشرینی دووەم ٢٠٢٦",
     skills: ["Figma", "Mobile UI", "Next.js"],
+    link: "https://fiveonelabs.org",
   },
 ];
 

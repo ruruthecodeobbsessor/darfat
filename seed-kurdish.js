@@ -11,7 +11,7 @@ async function seed() {
       is_online: false,
       deadline: "2027-01-15",
       required_skills: ["سەرکردایەتی", "بیرۆکەی بازرگانی"],
-      link: "https://fiveonelabs.org/our-programs",
+      link: "https://fiveonelabs.org/programs",
       how_to_apply: "فۆڕمی ئۆنلاین پڕبکەرەوە لە وێبسایتی فەرمی پێنج یەک.",
       benefits: "هاوکاری دارایی بۆ دەستپێکردن، ئۆفیسی کارکردن، ڕاهێنانی بازرگانی"
     },
@@ -24,7 +24,7 @@ async function seed() {
       is_online: false,
       deadline: "2026-11-30",
       required_skills: ["داهێنان", "پرۆژەسازی"],
-      link: "https://rwanga.org/awards",
+      link: "https://www.rwanga.org/ckb/awards",
       how_to_apply: "پرۆژەکەت پێشکەش بکە لە ڕێگەی پۆرتاڵی دەزگای ڕوانگە.",
       benefits: "خەڵاتی دارایی گەورە، بڕوانامەی نێودەوڵەتی، پشتگیری میدیایی"
     },
@@ -37,7 +37,7 @@ async function seed() {
       is_online: false,
       deadline: "2026-12-10",
       required_skills: ["کۆدینگ", "دیزاین", "تیم وۆرک"],
-      link: "https://auis.edu.krd/innovation",
+      link: "https://auis.edu.krd/academic-programs",
       how_to_apply: "وەک تیمێک ناوی خۆتان تۆمار بکەن پێش کۆتایی هاتنی وادەکە.",
       benefits: "خەڵاتی دارایی، دەرفەتی کارکردن، ڕاهێنانی پێشکەوتوو"
     }

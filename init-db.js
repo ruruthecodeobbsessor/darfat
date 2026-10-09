@@ -49,13 +49,14 @@ async function run() {
 
   console.log('Seeding sources...');
   const urls = [
-    'https://volunteer.krd/',
-    'https://jobs.krd/',
-    'https://www.instagram.com/empowerkrd/',
-    'https://kurdistanfoundation.krd/entities/1',
-    'https://www.iraq-businessnews.com/tag/united-nations-volunteers-unv/',
-    'https://employnvyouthhub.org/',
+    'https://www.rwanga.org/ckb',
+    'https://fiveonelabs.org/programs',
+    'https://kapita.iq',
+    'https://www.seedkurdistan.org/',
+    'https://su.edu.krd/',
+    'https://auk.edu.krd/',
     'https://auis.edu.krd/',
+    'https://www.re-coded.com/',
     'https://www.ukh.edu.krd/',
     'https://www.unv.org/',
     'https://www.acted.org/en/',

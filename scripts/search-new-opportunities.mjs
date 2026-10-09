@@ -37,7 +37,8 @@ Return a valid JSON object matching this schema:
 RULES:
 1. ONLY return opportunities located in Kurdistan/Iraq OR 100% Online/Remote for Kurdish/Iraqi youth. Exclude physical travel abroad.
 2. STRICT TRANSLATION: Translate ALL fields to Kurdish Sorani. Do not leave English in Title or Description.
-3. If no opportunities found, return {"opportunities": []}.`;
+3. NEVER hallucinate, invent, or guess URLs or path slugs. Use the exact verified website or application URL provided in the page text/URL.
+4. If no opportunities found, return {"opportunities": []}.`;
 
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
