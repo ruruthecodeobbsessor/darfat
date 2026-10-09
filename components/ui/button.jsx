@@ -27,6 +27,7 @@ export const Button = forwardRef(function Button(
   ref
 ) {
   const { t: localize } = useI18n();
+  const isUnstyled = variant === "unstyled";
   return (
     <button
       ref={ref}
@@ -34,10 +35,11 @@ export const Button = forwardRef(function Button(
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={cn(
-        "pressable inline-flex select-none items-center justify-center whitespace-nowrap font-semibold focus-ring",
-        "disabled:pointer-events-none disabled:opacity-45",
-        variants[variant] || variants.primary,
-        sizes[size] || sizes.md,
+        isUnstyled
+          ? "focus-ring disabled:pointer-events-none disabled:opacity-45"
+          : "pressable inline-flex select-none items-center justify-center whitespace-nowrap font-semibold focus-ring disabled:pointer-events-none disabled:opacity-45",
+        !isUnstyled && (variants[variant] || variants.primary),
+        !isUnstyled && (sizes[size] || sizes.md),
         className
       )}
       {...props}

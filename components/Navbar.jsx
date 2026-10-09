@@ -126,14 +126,14 @@ export function Navbar({ user = null, profile = null }) {
                       : "pointer-events-none opacity-0 translate-y-1 group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0"
                   )}
                 >
-                  <div className="w-[270px] rounded-2xl border border-slate-200/80 bg-white p-2 shadow-xl shadow-slate-900/10 backdrop-blur-xl">
+                  <div className="w-[270px] rounded-2xl border border-slate-200/80 bg-white p-2 text-start rtl:text-right shadow-xl shadow-slate-900/10 backdrop-blur-xl">
                     {/* User Header */}
                     <div className="flex items-center gap-3 px-2 py-2">
                       <div className="relative shrink-0">
                         <UserAvatar name={profile?.name} url={profile?.avatar_url} className="h-10 w-10 text-sm shadow-2xs" />
                         <span className="absolute bottom-0 end-0 block h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                       </div>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 text-start rtl:text-right">
                         <p className="truncate text-sm font-semibold text-slate-900 leading-snug">
                           {profile?.name || localize("هەژمارەکەم")}
                         </p>
@@ -153,9 +153,9 @@ export function Navbar({ user = null, profile = null }) {
                           setIsProfileOpen(false);
                           setIsLangOpen(false);
                         }}
-                        className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
+                        className="group flex w-full items-center justify-start text-start rtl:text-right gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
                       >
-                        <User className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
+                        <User className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-orange-600" />
                         <span>{localize("پڕۆفایل")}</span>
                       </Link>
 
@@ -166,9 +166,9 @@ export function Navbar({ user = null, profile = null }) {
                             setIsProfileOpen(false);
                             setIsLangOpen(false);
                           }}
-                          className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
+                          className="group flex w-full items-center justify-start text-start rtl:text-right gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
                         >
-                          <ShieldCheck className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
+                          <ShieldCheck className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-orange-600" />
                           <span>{localize("ئەدمین")}</span>
                         </Link>
                       )}
@@ -186,19 +186,19 @@ export function Navbar({ user = null, profile = null }) {
                           setIsLangOpen((prev) => !prev);
                         }}
                         className={cn(
-                          "group flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-sm font-medium transition-colors focus-ring",
+                          "group flex w-full items-center justify-between text-start rtl:text-right rounded-xl px-2.5 py-2 text-sm font-medium transition-colors focus-ring",
                           isLangOpen
                             ? "bg-orange-50/80 text-orange-600"
                             : "text-slate-700 hover:bg-orange-50/80 hover:text-orange-600"
                         )}
                       >
                         <div className="flex items-center gap-2.5">
-                          <Languages className={cn("h-4 w-4 transition-colors", isLangOpen ? "text-orange-600" : "text-slate-400 group-hover:text-orange-600")} />
+                          <Languages className={cn("h-4 w-4 shrink-0 transition-colors", isLangOpen ? "text-orange-600" : "text-slate-400 group-hover:text-orange-600")} />
                           <span>{localize("زمان")}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-slate-400 group-hover:text-orange-500">
                           <span>{LANGUAGES.find((l) => l.code === locale)?.name || locale}</span>
-                          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isLangOpen && "rotate-180")} />
+                          <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform duration-200", isLangOpen && "rotate-180")} />
                         </div>
                       </button>
 
@@ -212,14 +212,14 @@ export function Navbar({ user = null, profile = null }) {
                                 type="button"
                                 onClick={() => changeLanguage(lang.code)}
                                 className={cn(
-                                  "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
+                                  "flex w-full items-center justify-between text-start rtl:text-right rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
                                   isSelected
                                     ? "bg-white text-orange-600 font-semibold shadow-2xs"
                                     : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                                 )}
                               >
                                 <span>{lang.name}</span>
-                                {isSelected && <Check className="h-3.5 w-3.5 text-orange-600" />}
+                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-orange-600" />}
                               </button>
                             );
                           })}
@@ -234,9 +234,9 @@ export function Navbar({ user = null, profile = null }) {
                       <SignOutButton
                         variant="unstyled"
                         size="none"
-                        className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50/80 hover:text-red-600 focus-ring"
+                        className="group flex w-full items-center justify-start text-start rtl:text-right gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50/80 hover:text-red-600 focus-ring"
                       >
-                        <LogOut className="h-4 w-4 text-slate-400 transition-colors group-hover:text-red-600 rtl:-scale-x-100" />
+                        <LogOut className="h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-red-600 rtl:-scale-x-100" />
                         <span>{localize("چوونەدەرەوە")}</span>
                       </SignOutButton>
                     </div>
