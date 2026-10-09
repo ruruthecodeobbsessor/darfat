@@ -78,7 +78,32 @@ export default async function OpportunityDetail({ params }) {
         </header>
       </SlideUp>
 
-      <div className="mt-10 max-w-3xl space-y-10">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        {/* Actions: first on mobile, a sticky panel beside the content on desktop. */}
+        <aside className="lg:sticky lg:top-24 lg:order-last">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <dl className="mb-5 space-y-1">
+              <dt className="text-[13px] text-slate-500">{localize("دوا وادەی بەشداری")}</dt>
+              <dd className="text-[17px] font-semibold text-slate-900">{localize(deadline)}</dd>
+            </dl>
+            <div className="flex flex-col gap-2.5">
+              <form action={async () => {
+                'use server';
+                await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
+              }}>
+                <button type="submit" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-600 text-[15px] font-semibold text-white shadow-sm hover:bg-orange-700 focus-ring">
+                  <CheckCircle className="h-5 w-5" aria-hidden="true" />
+                  {localize("بەشدارم")}</button>
+              </form>
+              {opp.link && (
+                <a href={opp.link} target="_blank" rel="noopener noreferrer" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-[15px] font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 focus-ring">
+                  <ExternalLink className="h-[18px] w-[18px]" aria-hidden="true" />
+                  {localize("لینکی فەرمی")}</a>
+              )}
+            </div>
+          </div>
+        </aside>
+
         <article className="space-y-10">
           {sections.slice(0, 1).map((section) => <DetailSection key={section.title} {...section} />)}
           {opp.required_skills && opp.required_skills.length > 0 && (
@@ -93,29 +118,6 @@ export default async function OpportunityDetail({ params }) {
           )}
           {sections.slice(1).filter((section) => section.body).map((section) => <DetailSection key={section.title} {...section} />)}
         </article>
-
-        {/* Actions: moved to the bottom of the text */}
-        <div className="max-w-md rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
-          <dl className="mb-5 space-y-1">
-            <dt className="text-[13px] text-slate-500">{localize("دوا وادەی بەشداری")}</dt>
-            <dd className="text-[17px] font-semibold text-slate-900">{localize(deadline)}</dd>
-          </dl>
-          <div className="flex flex-col gap-2.5">
-            <form action={async () => {
-              'use server';
-              await query('INSERT INTO applications (opportunity_id, user_id) VALUES ($1, $2)', [opp.id, 'mock-user-id']);
-            }}>
-              <button type="submit" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-600 text-[15px] font-semibold text-white shadow-sm hover:bg-orange-700 focus-ring">
-                <CheckCircle className="h-5 w-5" aria-hidden="true" />
-                {localize("بەشدارم")}</button>
-            </form>
-            {opp.link && (
-              <a href={opp.link} target="_blank" rel="noopener noreferrer" className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-[15px] font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50 focus-ring">
-                <ExternalLink className="h-[18px] w-[18px]" aria-hidden="true" />
-                {localize("لینکی فەرمی")}</a>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
