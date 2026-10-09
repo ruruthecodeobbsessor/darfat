@@ -7,8 +7,7 @@ const nextConfig: NextConfig = {
       afterFiles: [],
       // Real destination pages take precedence when teammates add them.
       fallback: [
-        { source: "/dashboard", destination: "/auth/ready" },
-        { source: "/admin", destination: "/auth/ready" },
+        { source: "/:locale/dashboard", destination: "/:locale/auth/ready" },
       ],
     };
   },

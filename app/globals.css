@@ -71,7 +71,6 @@
 
   html {
     scroll-behavior: smooth;
-    direction: rtl;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -98,6 +97,16 @@
   select:not(:disabled) {
     cursor: pointer;
   }
+}
+
+html[lang="ar"],
+html[lang="en"] {
+  --font-sans: var(--font-rubik), var(--font-vazirmatn), system-ui, sans-serif;
+}
+
+/* Mirrored navigation arrows follow the reading direction. */
+html[dir="ltr"] .directional-arrow {
+  transform: scaleX(-1);
 }
 
 /* Thin, quiet scrollbars. */

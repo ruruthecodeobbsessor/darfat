@@ -1,6 +1,7 @@
+import { LocalizedText } from "@/components/i18n/LocalizedText";
 import { Button } from "./button";
 
-export function EmptyState({ icon: Icon, title = "هیچ زانیارییەک نەدۆزرایەوە", description, actionLabel, onAction, children }) {
+export function EmptyState({ icon: Icon, title = <LocalizedText text="هیچ زانیارییەک نەدۆزرایەوە" />, description, actionLabel, onAction, children }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200/80 bg-white px-6 py-14 text-center">
       {Icon && (

@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import Link from "next/link";
 import { ArrowLeft, Award, BookOpen, Briefcase, Calendar, Check, Compass, GraduationCap, HandHeart, Lightbulb, MapPin, Terminal, Trophy, Users2 } from "lucide-react";
 import { getOpportunityType } from "@/lib/constants";
@@ -17,15 +20,16 @@ const TYPE_ICONS = {
 };
 
 function Meta({ icon: Icon, children }) {
+  const { t: localize } = useI18n();
   return (
     <li className="flex min-w-0 items-center gap-1.5 text-xs text-slate-500">
       <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-      <span className="truncate">{children}</span>
+      <span className="truncate">{localize(children)}</span>
     </li>
   );
 }
 
-function MatchPercentageMeter({ score }) {
+function MatchPercentageMeter({ score, formatNumber }) {
   if (!score || score <= 0) return null;
 
   const size = 32;
@@ -45,8 +49,8 @@ function MatchPercentageMeter({ score }) {
     <div
       className="relative flex shrink-0 items-center justify-center"
       style={{ width: size, height: size }}
-      title={`${score}٪ گونجان`}
-      aria-label={`${score}٪ گونجان`}
+      title={`${formatNumber(score)}٪ گونجان`}
+      aria-label={`${formatNumber(score)}٪ گونجان`}
     >
       <svg className="-rotate-90" width={size} height={size}>
         <circle
@@ -70,7 +74,7 @@ function MatchPercentageMeter({ score }) {
         />
       </svg>
       <span className="absolute font-mono text-[11px] font-bold text-slate-800 tabular-nums">
-        {score}
+        {formatNumber(score)}
       </span>
     </div>
   );
@@ -78,10 +82,10 @@ function MatchPercentageMeter({ score }) {
 
 // Opportunity card with minimalist aesthetic and skill match indicators
 export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] }) {
+  const { t: localize, formatDate, formatNumber } = useI18n();
   const type = getOpportunityType(item.type);
   const TypeIcon = TYPE_ICONS[item.type] ?? Compass;
-  // Same date format as the details page; the database returns deadlines as Date objects.
-  const date = item.date || (item.deadline ? new Date(item.deadline).toLocaleDateString("ku-IQ") : null);
+  const date = item.date || (item.deadline ? formatDate(item.deadline) : null);
   const isRecommended = isTopRecommended || item.isTopRecommended || item.matchScore >= 50;
 
   return (
@@ -101,18 +105,18 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
 
       {/* Header with Type & Sleek Percentage Meter */}
       <div className="flex items-center justify-between gap-3">
-        <span title={type.label} className="inline-flex text-slate-400">
+        <span title={localize(type.label)} className="inline-flex text-slate-400">
           <TypeIcon className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
-          <span className="sr-only">{type.label}</span>
+          <span className="sr-only">{localize(type.label)}</span>
         </span>
 
         {item.matchScore > 0 && (
-          <MatchPercentageMeter score={item.matchScore} />
+          <MatchPercentageMeter score={item.matchScore} formatNumber={formatNumber} />
         )}
       </div>
 
       <h3 className="mt-3.5 line-clamp-2 text-base font-semibold leading-snug text-slate-900 group-hover:text-orange-700 transition-colors">
-        {item.title}
+        {item.example ? localize(item.title) : item.title}
       </h3>
 
       <ul className="mt-3 space-y-1.5">
@@ -128,7 +132,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
       {/* Matched & Required Skills */}
       {item.skills?.length > 0 && (
         <div className="mt-3.5">
-          <ul className="flex flex-wrap items-center gap-1.5" aria-label="لێهاتووییە داواکراوەکان">
+          <ul className="flex flex-wrap items-center gap-1.5" aria-label={localize("لێهاتووییە داواکراوەکان")}>
             {item.skills.map((skill) => {
               const cleanSkill = String(skill).toLowerCase().trim();
               const isMatched = (userSkills || []).some(
@@ -144,7 +148,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
                   }`}
                 >
                   {isMatched && <Check className="h-3 w-3 text-emerald-600" aria-hidden="true" />}
-                  <span>{skill}</span>
+                  <span>{localize(skill)}</span>
                 </li>
               );
             })}
@@ -156,14 +160,14 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
       {item.aiReason && (
         <div className="mt-3.5 flex items-start gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs leading-relaxed text-slate-600">
           <Compass className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden="true" />
-          <span className="line-clamp-2">{item.aiReason}</span>
+          <span className="line-clamp-2">{localize(item.aiReason)}</span>
         </div>
       )}
 
       {/* Footer link */}
       <span className="mt-auto flex items-center gap-1.5 pt-4 text-xs font-semibold text-orange-700">
-        بینینی وردەکاری
-        <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
+        {localize("بینینی وردەکاری")}
+        <ArrowLeft className="directional-arrow h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
       </span>
     </Link>
   );

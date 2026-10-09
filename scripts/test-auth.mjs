@@ -36,7 +36,10 @@ test('guard paths use segment boundaries and role redirects are fixed internal d
   assert.equal(routing.isAdminRoute('/api/admin/users'), true);
   assert.equal(routing.isAdminRoute('/administrator'), false);
   assert.equal(routing.roleDestination('admin'), '/admin');
-  assert.equal(routing.roleDestination('user'), '/dashboard');
+  assert.equal(routing.roleDestination('user'), '/opportunities');
+  assert.equal(routing.homeFor({ role: 'user', onboarding_completed: false }), '/onboarding');
+  assert.equal(routing.homeFor({ role: 'user', onboarding_completed: true }), '/opportunities');
+  assert.equal(routing.homeFor({ role: 'admin', onboarding_completed: false }), '/admin');
 });
 
 test('registration validates every required field, confirmation, and password length on the server', () => {

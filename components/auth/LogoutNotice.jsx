@@ -1,9 +1,11 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 
 export function LogoutNotice({ message }) {
+  const { t: localize } = useI18n();
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -21,5 +23,5 @@ export function LogoutNotice({ message }) {
 
   if (!visible) return null;
 
-  return <Alert tone="success" className="mb-6">{message}</Alert>;
+  return <Alert tone="success" className="mb-6">{localize(message)}</Alert>;
 }

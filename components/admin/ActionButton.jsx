@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ const TONES = {
  * Shows the action's error (or success message) next to the button.
  */
 export function ActionButton({ action, args = [], confirm, tone = "neutral", className, children, ...props }) {
+  const { t: localize } = useI18n();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState(null);
 
@@ -42,11 +44,11 @@ export function ActionButton({ action, args = [], confirm, tone = "neutral", cla
         )}
         {...props}
       >
-        {children}
+        {localize(children)}
       </button>
       {result && (
         <span role={result.error ? "alert" : "status"} className={cn("text-xs", result.error ? "text-red-700" : "text-emerald-700")}>
-          {result.error || result.message}
+          {localize(result.error || result.message)}
         </span>
       )}
     </span>

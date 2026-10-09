@@ -48,7 +48,7 @@ try {
   await page.locator('#email-error').waitFor();
   await page.locator('#password-error').waitFor();
   await page.goto(origin + '/login?reason=expired');
-  await page.getByText('Your session has expired, please sign in again.', { exact: true }).waitFor();
+  await page.getByText('کاتی چوونەژوورەوەت تەواو بووە. تکایە دووبارە بچۆ ژوورەوە.', { exact: true }).waitFor();
   console.log('PASS: password toggles stay inside fields, independent visibility, 44px controls, server validation, retained values, focused errors, mobile/landscape layout, remember default, and expiry message.');
 } finally {
   await context.close();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Cake, Camera, Check, Heart, Mail, MapPin, Pencil, Wrench, X } from "lucide-react";
 import { updateProfile, uploadAvatar } from "@/app/profile/actions";
@@ -12,19 +13,21 @@ import { SignOutButton } from "@/components/auth/SignOutButton";
 import { FollowStats } from "@/components/social/FollowStats";
 
 function ProfileField({ id, label, error, hint, className, children }) {
+  const { t: localize } = useI18n();
   return (
     <div className={`space-y-1.5 ${className ?? ""}`}>
       <label htmlFor={id} className={labelClass}>
-        {label}
+        {localize(label)}
       </label>
-      {children}
-      {hint && !error && <p className={hintClass}>{hint}</p>}
-      {error && <p className={errorTextClass}>{error}</p>}
+      {localize(children)}
+      {hint && !error && <p className={hintClass}>{localize(hint)}</p>}
+      {error && <p className={errorTextClass}>{localize(error)}</p>}
     </div>
   );
 }
 
 function AvatarUploader({ name, url, onUploaded }) {
+  const { t: localize } = useI18n();
   const [state, action, pending] = useActionState(uploadAvatar, {});
   const formRef = useRef(null);
   const inputRef = useRef(null);
@@ -42,7 +45,7 @@ function AvatarUploader({ name, url, onUploaded }) {
         name="avatar"
         accept="image/jpeg,image/png,image/webp,image/gif"
         className="sr-only"
-        aria-label="گۆڕینی وێنەی پڕۆفایل"
+        aria-label={localize("گۆڕینی وێنەی پڕۆفایل")}
         onChange={() => formRef.current?.requestSubmit()}
       />
       <button
@@ -50,8 +53,8 @@ function AvatarUploader({ name, url, onUploaded }) {
         onClick={() => inputRef.current?.click()}
         disabled={pending}
         className="pressable absolute bottom-0 end-0 flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-md ring-1 ring-slate-900/10 hover:text-orange-700 focus-ring disabled:opacity-60"
-        aria-label="گۆڕینی وێنەی پڕۆفایل"
-        title="گۆڕینی وێنە"
+        aria-label={localize("گۆڕینی وێنەی پڕۆفایل")}
+        title={localize("گۆڕینی وێنە")}
       >
         {pending ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" aria-hidden="true" />
@@ -61,7 +64,7 @@ function AvatarUploader({ name, url, onUploaded }) {
       </button>
       {state.error && (
         <p className="absolute top-full mt-3 w-52 text-xs text-red-700" role="alert">
-          {state.error}
+          {localize(state.error)}
         </p>
       )}
     </form>
@@ -69,12 +72,13 @@ function AvatarUploader({ name, url, onUploaded }) {
 }
 
 function TagList({ items, tone = "bg-slate-100 text-slate-700" }) {
-  if (!items.length) return <p className="mt-2 text-sm text-slate-400">هێشتا هیچ شتێک زیاد نەکراوە.</p>;
+  const { t: localize } = useI18n();
+  if (!items.length) return <p className="mt-2 text-sm text-slate-400">{localize("هێشتا هیچ شتێک زیاد نەکراوە.")}</p>;
   return (
     <ul className="mt-3 flex flex-wrap gap-2">
       {items.map((item) => (
         <li key={item} className={`rounded-full px-3 py-1 text-[13px] font-medium ${tone}`}>
-          {item}
+          {localize(item)}
         </li>
       ))}
     </ul>
@@ -82,16 +86,18 @@ function TagList({ items, tone = "bg-slate-100 text-slate-700" }) {
 }
 
 function SectionTitle({ icon: Icon, children }) {
+  const { t: localize } = useI18n();
   return (
     <h3 className="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
       {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
-      {children}
+      {localize(children)}
     </h3>
   );
 }
 
 // One Instagram-style card: header with stats, about, then whatever the page adds (composer, posts).
 export default function ProfileExperience({ initialProfile, userId, stats, children }) {
+  const { t: localize } = useI18n();
   const [profile, setProfile] = useState(initialProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [state, action, pending] = useActionState(async (previous, formData) => {
@@ -109,17 +115,15 @@ export default function ProfileExperience({ initialProfile, userId, stats, child
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-[28px] font-bold text-slate-900 sm:text-[34px]">پڕۆفایلی من</h1>
+            <h1 className="text-[28px] font-bold text-slate-900 sm:text-[34px]">{localize("پڕۆفایلی من")}</h1>
             <p className="mt-2 max-w-xl text-[15px] leading-7 text-slate-500">
-              ئەم زانیارییانە لە گفتوگۆی سەرەتاوە وەرگیراون. هەر کاتێک بتەوێت دەستکارییان بکە.
-            </p>
+              {localize("ئەم زانیارییانە لە گفتوگۆی سەرەتاوە وەرگیراون. هەر کاتێک بتەوێت دەستکارییان بکە.")}</p>
           </div>
           {!isEditing && (
             <div className="flex gap-2">
               <Button onClick={() => setIsEditing(true)} variant="outline">
                 <Pencil className="h-4 w-4" aria-hidden="true" />
-                دەستکاریکردن
-              </Button>
+                {localize("دەستکاریکردن")}</Button>
               <SignOutButton />
             </div>
           )}
@@ -127,7 +131,7 @@ export default function ProfileExperience({ initialProfile, userId, stats, child
 
         {state.message && !isEditing && (
           <Alert tone="success" className="mb-6">
-            {state.message}
+            {localize(state.message)}
           </Alert>
         )}
 
@@ -139,21 +143,20 @@ export default function ProfileExperience({ initialProfile, userId, stats, child
               onUploaded={(avatarUrl) => setProfile((current) => ({ ...current, avatarUrl }))}
             />
             <div className="min-w-0">
-              <h2 className="break-words text-[24px] font-bold leading-tight text-slate-900">{profile.name || "بێ ناو"}</h2>
+              <h2 className="break-words text-[24px] font-bold leading-tight text-slate-900">{profile.name || localize("بێ ناو")}</h2>
               {stats && <FollowStats stats={stats} userId={userId} bare className="mt-1.5" />}
               {profile.headline && <p className="mt-2.5 text-[15px] text-slate-600">{profile.headline}</p>}
               <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-slate-500">
                 {profile.city && (
                   <li className="flex items-center gap-1.5">
                     <MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {profile.city}
+                    {localize(profile.city)}
                   </li>
                 )}
                 {profile.age && (
                   <li className="flex items-center gap-1.5">
                     <Cake className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {profile.age} ساڵ
-                  </li>
+                    {localize(profile.age)} {localize("ساڵ")}</li>
                 )}
                 {profile.email && (
                   <li className="flex items-center gap-1.5" dir="ltr">
@@ -170,69 +173,67 @@ export default function ProfileExperience({ initialProfile, userId, stats, child
               <form action={action} noValidate>
                 {state.error && (
                   <Alert tone="error" className="mb-6">
-                    {state.error}
+                    {localize(state.error)}
                   </Alert>
                 )}
                 <div className="grid gap-5 sm:grid-cols-2">
-                  <ProfileField id="name" label="ناوی تەواو" error={errors.name}>
+                  <ProfileField id="name" label={localize("ناوی تەواو")} error={errors.name}>
                     <input id="name" name="name" defaultValue={profile.name} maxLength={100} autoComplete="name" className={controlClass({ error: Boolean(errors.name), className: "h-11" })} required />
                   </ProfileField>
-                  <ProfileField id="headline" label="ناونیشانی کورت" hint="یەک دێڕ دەربارەی خۆت، بۆ نموونە: خوێندکاری کۆمپیوتەر و دیزاینەری UI">
+                  <ProfileField id="headline" label={localize("ناونیشانی کورت")} hint={localize("یەک دێڕ دەربارەی خۆت، بۆ نموونە: خوێندکاری کۆمپیوتەر و دیزاینەری UI")}>
                     <input id="headline" name="headline" defaultValue={profile.headline} maxLength={80} className={controlClass({ className: "h-11" })} />
                   </ProfileField>
-                  <ProfileField id="city" label="شار">
-                    <input id="city" name="city" defaultValue={profile.city} maxLength={60} list="city-options" placeholder="شارەکەت" className={controlClass({ className: "h-11" })} />
+                  <ProfileField id="city" label={localize("شار")}>
+                    <input id="city" name="city" defaultValue={profile.city} maxLength={60} list="city-options" placeholder={localize("شارەکەت")} className={controlClass({ className: "h-11" })} />
                     <datalist id="city-options">
                       {CITIES.map((city) => (
                         <option key={city} value={city} />
                       ))}
                     </datalist>
                   </ProfileField>
-                  <ProfileField id="age" label="تەمەن" error={errors.age}>
+                  <ProfileField id="age" label={localize("تەمەن")} error={errors.age}>
                     <input id="age" name="age" defaultValue={profile.age ?? ""} inputMode="numeric" maxLength={3} className={controlClass({ error: Boolean(errors.age), className: "h-11" })} />
                   </ProfileField>
-                  <ProfileField id="interests" label="حەز و ئارەزووەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە." className="sm:col-span-2">
-                    <input id="interests" name="interests" defaultValue={profile.interests.join("، ")} className={controlClass({ className: "h-11" })} placeholder="تەکنەلۆژیا، هونەر، خۆبەخشی" />
+                  <ProfileField id="interests" label={localize("حەز و ئارەزووەکان")} hint={localize("هەر یەکێک بە کۆما (،) جیا بکەرەوە.")} className="sm:col-span-2">
+                    <input id="interests" name="interests" defaultValue={profile.interests.join("، ")} className={controlClass({ className: "h-11" })} placeholder={localize("تەکنەلۆژیا، هونەر، خۆبەخشی")} />
                   </ProfileField>
-                  <ProfileField id="skills" label="لێهاتوویی و شارەزاییەکان" hint="هەر یەکێک بە کۆما (،) جیا بکەرەوە." className="sm:col-span-2">
-                    <input id="skills" name="skills" defaultValue={profile.skills.join("، ")} className={controlClass({ className: "h-11" })} placeholder="پڕۆگرامسازی، دیزاین، نووسین" />
+                  <ProfileField id="skills" label={localize("لێهاتوویی و شارەزاییەکان")} hint={localize("هەر یەکێک بە کۆما (،) جیا بکەرەوە.")} className="sm:col-span-2">
+                    <input id="skills" name="skills" defaultValue={profile.skills.join("، ")} className={controlClass({ className: "h-11" })} placeholder={localize("پڕۆگرامسازی، دیزاین، نووسین")} />
                   </ProfileField>
-                  <ProfileField id="bio" label="دەربارەی من" className="sm:col-span-2">
-                    <textarea id="bio" name="bio" rows={4} maxLength={500} defaultValue={profile.bio} className={controlClass({ className: "resize-y py-3 leading-7" })} placeholder="بە کورتی باسی خۆت و ئامانجەکانت بکە..." />
+                  <ProfileField id="bio" label={localize("دەربارەی من")} className="sm:col-span-2">
+                    <textarea id="bio" name="bio" rows={4} maxLength={500} defaultValue={profile.bio} className={controlClass({ className: "resize-y py-3 leading-7" })} placeholder={localize("بە کورتی باسی خۆت و ئامانجەکانت بکە...")} />
                   </ProfileField>
                 </div>
                 <div className="mt-8 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                   <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} disabled={pending}>
                     <X className="h-4 w-4" aria-hidden="true" />
-                    پاشگەزبوونەوە
-                  </Button>
+                    {localize("پاشگەزبوونەوە")}</Button>
                   <Button type="submit" isLoading={pending}>
                     <Check className="h-4 w-4" aria-hidden="true" />
-                    پاشەکەوتکردنی گۆڕانکارییەکان
-                  </Button>
+                    {localize("پاشەکەوتکردنی گۆڕانکارییەکان")}</Button>
                 </div>
               </form>
             ) : (
               <div className="grid gap-8 sm:grid-cols-2">
                 <section className="sm:col-span-2">
-                  <SectionTitle>دەربارەی من</SectionTitle>
+                  <SectionTitle>{localize("دەربارەی من")}</SectionTitle>
                   <p className="mt-2 whitespace-pre-wrap text-[15px] leading-8 text-slate-700">
-                    {profile.bio || <span className="text-slate-400">هێشتا هیچ شتێک نەنووسراوە.</span>}
+                    {profile.bio || <span className="text-slate-400">{localize("هێشتا هیچ شتێک نەنووسراوە.")}</span>}
                   </p>
                 </section>
                 <section>
-                  <SectionTitle icon={Heart}>حەز و ئارەزووەکان</SectionTitle>
+                  <SectionTitle icon={Heart}>{localize("حەز و ئارەزووەکان")}</SectionTitle>
                   <TagList items={profile.interests} tone="bg-orange-50 text-orange-800" />
                 </section>
                 <section>
-                  <SectionTitle icon={Wrench}>لێهاتوویی و شارەزاییەکان</SectionTitle>
+                  <SectionTitle icon={Wrench}>{localize("لێهاتوویی و شارەزاییەکان")}</SectionTitle>
                   <TagList items={profile.skills} />
                 </section>
               </div>
             )}
           </div>
 
-          {children}
+          {localize(children)}
         </div>
       </div>
     </section>

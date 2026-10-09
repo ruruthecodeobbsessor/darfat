@@ -1,3 +1,4 @@
+import { getServerI18n } from "@/lib/i18n/server";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth/AuthForm";
@@ -18,6 +19,7 @@ const notices = {
 };
 
 async function AuthContent({ mode, searchParams }) {
+  const { t: localize } = await getServerI18n();
   const [{ identity }, params] = await Promise.all([getIdentity(), searchParams]);
   if (identity) redirect(homeFor(identity.profile));
   const expired = params?.reason === "expired";
@@ -26,24 +28,25 @@ async function AuthContent({ mode, searchParams }) {
   return <>
     {signedOut && <LogoutNotice message={notice} />}
     {!signedOut && (expired || notice) && <Alert tone="warning" className="mb-6">
-      {expired ? <p lang="en" dir="ltr">{SESSION_EXPIRED_MESSAGE}</p> : notice}
+      {expired ? <p>{localize(SESSION_EXPIRED_MESSAGE)}</p> : localize(notice)}
     </Alert>}
     <AuthForm key={mode} mode={mode} />
   </>;
 }
 
-export function AuthScreen({ mode, searchParams }) {
+export async function AuthScreen({ mode, searchParams }) {
+  const { t: localize } = await getServerI18n();
   const registering = mode === "register";
   return <section className="flex flex-1 items-start justify-center px-4 py-12 sm:items-center sm:py-20">
     <SlideUp className="w-full max-w-[400px]">
       <div className="mb-8 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand-mark.png" alt="" width={44} height={50} className="mx-auto mb-6 h-12 w-auto" />
-        <h1 className="text-[28px] font-bold text-slate-900">{registering ? "هەژمارێک دروست بکە" : "بەخێربێیتەوە"}</h1>
-        <p className="mt-2 text-[15px] leading-7 text-slate-500">{registering ? "زانیارییەکانت بنووسە بۆ تۆمارکردن لە دەرفەت." : "بە ئیمەیڵ و وشەی نهێنی بچۆ ژوورەوە."}</p>
+        <h1 className="text-[28px] font-bold text-slate-900">{localize(registering ? "هەژمارێک دروست بکە" : "بەخێربێیتەوە")}</h1>
+        <p className="mt-2 text-[15px] leading-7 text-slate-500">{localize(registering ? "زانیارییەکانت بنووسە بۆ تۆمارکردن لە دەرفەت." : "بە ئیمەیڵ و وشەی نهێنی بچۆ ژوورەوە.")}</p>
       </div>
       <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-md sm:p-8">
-        <Suspense fallback={<Spinner text="پشکنینی هەژمار..." />}>
+        <Suspense fallback={<Spinner text={localize("پشکنینی هەژمار...")} />}>
           <AuthContent mode={mode} searchParams={searchParams} />
         </Suspense>
       </div>
