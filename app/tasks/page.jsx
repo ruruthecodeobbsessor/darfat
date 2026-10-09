@@ -21,7 +21,7 @@ async function TaskContent() {
       <a href="/tasks" className="mt-1 inline-flex min-h-11 items-center rounded-lg font-semibold underline underline-offset-4 focus-ring">دووبارە بارکردنەوە</a>
     </Alert>;
   }
-  return <TaskWorkspace initialData={data} aiReady={taskAIReady()} preferences={profilePreferences(identity.profile)} />;
+  return <TaskWorkspace initialData={data} aiReady={await taskAIReady()} preferences={profilePreferences(identity.profile)} />;
 }
 
 export default function TasksPage() {

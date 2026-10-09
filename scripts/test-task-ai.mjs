@@ -5,7 +5,11 @@ const url = source => "data:text/javascript;base64," + Buffer.from(source).toStr
 const constants = url(readFileSync("lib/tasks/constants.js", "utf8"));
 const rubric = url(readFileSync("lib/tasks/rubric.mjs", "utf8"));
 const validationUrl = url(readFileSync("lib/tasks/validation.js", "utf8").replace('"./constants"', JSON.stringify(constants)).replace('"./rubric.mjs"', JSON.stringify(rubric)));
-const providerUrl = url(readFileSync("lib/tasks/providers.js", "utf8").replace('import "server-only";', ""));
+// Offline: stand in for the dashboard key store with the environment keys.
+const aiConfigStub = 'const getAIConfig = async p => ({ key: process.env[p === "gemini" ? "GEMINI_API_KEY" : "GROQ_API_KEY"]?.trim() || null, model: null });'
+ + ' const isAIConfigured = async () => Boolean((await getAIConfig("gemini")).key || (await getAIConfig("groq")).key);';
+const providerUrl = url(readFileSync("lib/tasks/providers.js", "utf8").replace('import "server-only";', "")
+ .replace('import { getAIConfig, isAIConfigured } from "@/lib/ai-config";', aiConfigStub));
 const validation = await import(validationUrl);
 const provider = await import(providerUrl);
 const ai = await import(url(readFileSync("lib/tasks/ai.js", "utf8").replace('import "server-only";', "")
@@ -66,7 +70,7 @@ test("only configured providers are called", async t => {
 });
 test("missing provider configuration makes no requests", async t => {
  mock(t, async () => assert.fail("Unexpected network request"), false, false);
- assert.equal(provider.taskAIReady(), false);
+ assert.equal(await provider.taskAIReady(), false);
  await assert.rejects(provider.callTaskAI("Evaluate", {}, schema, valid), error => error.status === 503);
 });
 test("timeouts are bounded failures and never fabricated feedback", async t => {

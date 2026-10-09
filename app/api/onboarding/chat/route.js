@@ -61,7 +61,7 @@ export async function POST(request) {
   const knownName = identity.profile.name;
 
   // No AI key at all: the scripted interview keeps onboarding working.
-  if (!isOnboardingAiConfigured()) {
+  if (!(await isOnboardingAiConfigured())) {
     const turn = scriptedTurn(messages, knownName);
     if (!turn.done) return json({ reply: turn.reply, suggestions: cleanSuggestions(turn.suggestions), done: false });
     if (!(await saveProfile(identity.user.id, turn.profile))) return saveFailed();

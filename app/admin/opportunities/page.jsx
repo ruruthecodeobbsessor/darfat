@@ -1,98 +1,120 @@
-import { query } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
-import { AddFromTextButton } from './AddFromTextButton';
-import { CheckCircle, XCircle, Briefcase, MapPin, Calendar } from 'lucide-react';
-import { getOpportunityType } from '@/lib/constants';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-
-import { connection } from 'next/server';
+import Link from "next/link";
+import { CheckCircle, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { requireRole } from "@/lib/auth/server";
+import { query } from "@/lib/db";
+import { getOpportunityType } from "@/lib/constants";
+import { deleteOpportunity, setOpportunityStatus } from "@/app/admin/actions";
+import { AddFromTextButton } from "./AddFromTextButton";
+import { ActionButton } from "@/components/admin/ActionButton";
+import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const instant = false;
+export const metadata = { title: "بەڕێوەبردنی دەرفەتەکان | دەرفەت" };
 
-export const metadata = {
-  title: "بەڕێوەبردنی دەرفەتەکان | دەرفەت",
-};
+const FILTERS = [
+  { id: "all", label: "هەموو" },
+  { id: "draft", label: "ڕەشنووس" },
+  { id: "published", label: "بڵاوکراوە" },
+];
+const dateFormat = new Intl.DateTimeFormat("ckb", { dateStyle: "medium", timeZone: "Asia/Baghdad", numberingSystem: "arab" });
 
-export default async function AdminOpportunitiesPage() {
-  await connection();
-  const res = await query('SELECT * FROM opportunities ORDER BY created_at DESC');
-  const opportunities = res.rows;
+export default async function AdminOpportunitiesPage({ searchParams }) {
+  await requireRole("admin");
+  const { status = "all", q = "" } = await searchParams;
+  const filter = FILTERS.some((item) => item.id === status) ? status : "all";
+  const search = String(q).trim().slice(0, 100);
 
-  async function approve(id) {
-    'use server';
-    await query("UPDATE opportunities SET status = 'published' WHERE id = $1", [id]);
-    revalidatePath('/admin/opportunities');
-  }
-
-  async function reject(id) {
-    'use server';
-    await query("DELETE FROM opportunities WHERE id = $1", [id]);
-    revalidatePath('/admin/opportunities');
-  }
+  const { rows: opportunities } = await query(
+    `select id, title, type, organizer, location, deadline, status, created_at from opportunities
+     where ($1 = 'all' or status = $1) and ($2 = '' or title ilike '%' || $2 || '%' or organizer ilike '%' || $2 || '%')
+     order by created_at desc limit 300`,
+    [filter, search]
+  );
+  const { rows: [totals] } = await query(
+    "select count(*)::int as all, count(*) filter (where status = 'draft')::int as draft, count(*) filter (where status = 'published')::int as published from opportunities"
+  );
 
   return (
-    <PageContainer size="xl">
-      <PageHeader eyebrow="ئەدمین" title="دەرفەتەکان" description="دەرفەتە ڕەشنووسەکان پەسەند بکە یان بیانسڕەوە." actions={<AddFromTextButton />} />
+    <>
+      <PageHeader
+        title="دەرفەتەکان"
+        description="دەرفەت زیاد بکە، دەستکاری بکە، بڵاوی بکەرەوە یان بیسڕەوە."
+        actions={
+          <>
+            <AddFromTextButton />
+            <Link href="/admin/opportunities/new" className="pressable inline-flex h-11 items-center gap-2 rounded-xl bg-orange-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 focus-ring">
+              <Plus className="h-4 w-4" aria-hidden="true" /> دەرفەتی نوێ
+            </Link>
+          </>
+        }
+      />
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {opportunities.map(opp => (
-          <div key={opp.id} className="card-float flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
-                  {getOpportunityType(opp.type).label}
-                </span>
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  opp.status === 'published' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'
-                }`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${opp.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'}`} aria-hidden="true" />
-                  {opp.status}
-                </span>
-              </div>
-              <h3 className="mb-4 line-clamp-2 text-[17px] font-semibold leading-7 text-slate-900">
-                {opp.title}
-              </h3>
-              <div className="mb-2 space-y-1.5 text-[13px] text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Briefcase className="w-4 h-4" />
-                  <span className="line-clamp-1">{opp.organizer || 'نەزانراو'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  <span className="line-clamp-1">{opp.location || 'نەزانراو'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{opp.deadline ? new Date(opp.deadline).toLocaleDateString('ku-IQ') : 'بێ کات'}</span>
-                </div>
-              </div>
-            </div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="فلتەری دۆخ" className="inline-flex gap-1 rounded-xl bg-slate-100 p-1">
+          {FILTERS.map((item) => (
+            <Link
+              key={item.id}
+              href={{ query: { ...(item.id !== "all" && { status: item.id }), ...(search && { q: search }) } }}
+              aria-current={filter === item.id ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3.5 text-[13px] font-medium focus-ring",
+                filter === item.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
+              )}
+            >
+              {item.label} <span className="text-slate-400">{totals[item.id]}</span>
+            </Link>
+          ))}
+        </nav>
+        <form className="w-full sm:w-72" role="search">
+          {filter !== "all" && <input type="hidden" name="status" value={filter} />}
+          <label htmlFor="opp-search" className="sr-only">گەڕان</label>
+          <input id="opp-search" name="q" defaultValue={search} placeholder="گەڕان بە ناونیشان یان ڕێکخەر..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm outline-none focus-visible:border-orange-500 focus-visible:ring-4 focus-visible:ring-orange-500/15" />
+        </form>
+      </div>
 
-            {opp.status === 'draft' && (
-              <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
-                <form action={approve.bind(null, opp.id)} className="flex-1">
-                  <button type="submit" className="pressable flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-emerald-50 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 focus-ring">
-                    <CheckCircle className="w-4 h-4" />
-                    پەسەندکردن
-                  </button>
-                </form>
-                <form action={reject.bind(null, opp.id)} className="flex-1">
-                  <button type="submit" className="pressable flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-red-50 text-sm font-semibold text-red-700 hover:bg-red-100 focus-ring">
-                    <XCircle className="w-4 h-4" />
-                    سڕینەوە
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {opportunities.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-slate-200/80 bg-white py-16 text-center text-sm text-slate-500">
-            هیچ دەرفەتێک نییە. پشکنین ئەنجام بدە بۆ دۆزینەوەی دەرفەتەکان.
-          </div>
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+        {opportunities.length ? (
+          <ul className="divide-y divide-slate-100">
+            {opportunities.map((opp) => (
+              <li key={opp.id} className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/admin/opportunities/${opp.id}`} className="truncate rounded font-semibold text-slate-900 hover:text-orange-700 focus-ring">{opp.title}</Link>
+                    <Badge>{getOpportunityType(opp.type).label}</Badge>
+                    {opp.status === "published"
+                      ? <Badge variant="success" dot dotColor="bg-emerald-500">بڵاوکراوە</Badge>
+                      : <Badge variant="warning" dot dotColor="bg-amber-500">ڕەشنووس</Badge>}
+                  </div>
+                  <p className="mt-1 truncate text-[13px] text-slate-500">
+                    {[opp.organizer, opp.location, opp.deadline && `دوا وادە: ${dateFormat.format(opp.deadline)}`].filter(Boolean).join(" · ") || "بێ زانیاری زیاتر"}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-start gap-2">
+                  {opp.status === "draft" ? (
+                    <ActionButton action={setOpportunityStatus} args={[opp.id, "published"]} tone="success">
+                      <CheckCircle className="h-4 w-4" aria-hidden="true" /> بڵاوکردنەوە
+                    </ActionButton>
+                  ) : (
+                    <ActionButton action={setOpportunityStatus} args={[opp.id, "draft"]}>
+                      <EyeOff className="h-4 w-4" aria-hidden="true" /> شاردنەوە
+                    </ActionButton>
+                  )}
+                  <Link href={`/admin/opportunities/${opp.id}`} className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold text-slate-600 hover:bg-slate-100 focus-ring">
+                    <Pencil className="h-4 w-4" aria-hidden="true" /> دەستکاری
+                  </Link>
+                  <ActionButton action={deleteOpportunity} args={[opp.id]} tone="danger" confirm={`«${opp.title}» بسڕدرێتەوە؟ ئەمە ناگەڕێتەوە.`} aria-label={`سڕینەوەی ${opp.title}`}>
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  </ActionButton>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-6 py-16 text-center text-sm text-slate-500">هیچ دەرفەتێک نەدۆزرایەوە.</p>
         )}
       </div>
-    </PageContainer>
+    </>
   );
 }
