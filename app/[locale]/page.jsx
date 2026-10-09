@@ -11,9 +11,9 @@ import { SlideUp, StaggerContainer, StaggerItem } from "@/components/ui/animatio
 export async function generateMetadata() {
   const { t } = await getServerI18n();
   return localizeMetadata({
-  title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
-  description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
-}, t);
+    title: "سەرەتا | دەرفەت - پلاتفۆرمی دەرفەتەکانی کوردستان",
+    description: "دۆزینەوەی نوێترین دەرفەتەکانی هاکاسۆن، وۆرکشۆپ، کاری خۆبەخشی و پێشبڕکێ بۆ گەنجان.",
+  }, t);
 }
 
 export const instant = false;
@@ -118,7 +118,7 @@ export default async function HomePage() {
             <StaggerItem>
               <h1 className="text-[34px] font-bold leading-[1.3] text-slate-900 sm:text-5xl sm:leading-[1.25] lg:text-[56px]">
                 {localize("هەموو دەرفەتەکان لە یەک شوێن،")}<br />
-                <span className="text-orange-600">{localize("تایبەت بۆ تواناکانی تۆ")}</span>
+                <span className="text-orange-600">{localize("تایبەت بە تواناکانی تۆ")}</span>
               </h1>
             </StaggerItem>
             <StaggerItem className="w-full">

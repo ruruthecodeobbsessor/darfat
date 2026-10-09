@@ -63,7 +63,7 @@ RULES:
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
-      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
