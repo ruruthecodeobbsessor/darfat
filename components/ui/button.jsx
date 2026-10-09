@@ -11,6 +11,7 @@ const variants = {
   outline: "border border-slate-200 bg-white text-slate-800 shadow-xs hover:border-slate-300 hover:bg-slate-50",
   ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
   destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
+  unstyled: "",
 };
 
 const sizes = {
@@ -18,6 +19,7 @@ const sizes = {
   md: "h-11 gap-2 rounded-xl px-4 text-sm",
   lg: "h-12 gap-2 rounded-xl px-6 text-[15px]",
   icon: "h-11 w-11 justify-center rounded-xl p-0",
+  none: "",
 };
 
 export const Button = forwardRef(function Button(
