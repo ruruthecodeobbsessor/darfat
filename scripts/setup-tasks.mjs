@@ -60,13 +60,22 @@ try {
   }
 
   // Confirm encrypted, certificate-verified access using the dedicated non-bypass role.
-  const scoped = new pg.Client({ connectionString: login, ssl: { rejectUnauthorized: true, ca: process.env.TASK_DATABASE_CA?.replace(/\\n/g, "\n") || SUPABASE_DATABASE_CA }, connectionTimeoutMillis: 10000 });
-  try {
-    await scoped.connect();
-    const { rows: [security] } = await scoped.query("select current_user, (select rolbypassrls from pg_roles where rolname=current_user) as bypass, (select rolsuper from pg_roles where rolname=current_user) as superuser");
-    if (security.current_user !== "task_api" || security.bypass || security.superuser) throw new Error("Task login must enforce RLS.");
-    console.log("Dedicated Task login connected with certificate verification and RLS enforced.");
-  } finally { await scoped.end(); }
+  // The pooler can briefly cache the previous password after a repair.
+  // Retry verification only, without repeating credential changes.
+  for (let attempt = 1; ; attempt++) {
+    const scoped = new pg.Client({ connectionString: login, ssl: { rejectUnauthorized: true, ca: process.env.TASK_DATABASE_CA?.replace(/\\n/g, "\n") || SUPABASE_DATABASE_CA }, connectionTimeoutMillis: 10000, query_timeout: 10000 });
+    try {
+      await scoped.connect();
+      const { rows: [security] } = await scoped.query("select current_user, (select rolbypassrls from pg_roles where rolname=current_user) as bypass, (select rolsuper from pg_roles where rolname=current_user) as superuser");
+      if (security.current_user !== "task_api" || security.bypass || security.superuser) throw new Error("Task login must enforce RLS.");
+      console.log("Dedicated Task login connected with certificate verification and RLS enforced.");
+      break;
+    } catch (error) {
+      if (!repairLogin || error.code !== "28P01" || attempt >= 6) throw error;
+    } finally { await scoped.end().catch(() => {}); }
+    console.log("Waiting for the pooler to accept the restored Task credential...");
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
 
   const path = ".env.local";
   const lines = fs.readFileSync(path, "utf8").split(/\r?\n/).filter((line) => !/^TASK_DATABASE_URL=/.test(line));

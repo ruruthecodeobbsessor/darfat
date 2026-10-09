@@ -5,20 +5,23 @@ import { notFound } from 'next/navigation';
 import { ArrowRight, Calendar, MapPin, Briefcase, ExternalLink, CheckCircle } from 'lucide-react';
 import { getOpportunityType } from '@/lib/constants';
 import { SlideUp } from '@/components/ui/animations';
+import { getOpportunityContent } from '@/lib/opportunity-content';
+import { OpportunityTranslationNotice } from '@/components/OpportunityTranslationNotice';
 
 import { connection } from 'next/server';
 
 export const instant = false;
 
 export async function generateMetadata({ params }) {
-  const { t: localize } = await getServerI18n();
+  const { t: localize, locale } = await getServerI18n();
   try {
     const { id } = await params;
-    const res = await query('SELECT title, description FROM opportunities WHERE id = $1', [id]);
+    const res = await query('SELECT * FROM opportunities WHERE id = $1', [id]);
     if (res.rows && res.rows.length > 0) {
+      const content = await getOpportunityContent(res.rows[0], locale);
       return {
-        title: localize("{value0} | دەرفەت", { value0: res.rows[0].title }),
-        description: res.rows[0].description?.slice(0, 160) || "زانیاری وردیی دەرفەت",
+        title: localize("{value0} | دەرفەت", { value0: content.title }),
+        description: content.description?.slice(0, 160) || localize("زانیاری وردیی دەرفەت"),
       };
     }
   } catch {
@@ -32,30 +35,31 @@ async function DetailSection({ title, body }) {
   return (
     <section>
       <h2 className="text-[19px] font-semibold text-slate-900">{localize(title)}</h2>
-      <p className="mt-3 whitespace-pre-wrap text-[15px] leading-8 text-slate-600">{localize(body)}</p>
+      <p dir="auto" className="mt-3 whitespace-pre-wrap text-[15px] leading-8 text-slate-600">{body}</p>
     </section>
   );
 }
 
 export default async function OpportunityDetail({ params }) {
-  const { t: localize, formatDate } = await getServerI18n();
+  const { t: localize, formatDate, locale } = await getServerI18n();
   await connection();
   const { id } = await params;
   const res = await query('SELECT * FROM opportunities WHERE id = $1', [id]);
   if (res.rows.length === 0) return notFound();
   
-  const opp = res.rows[0];
+  const opp = await getOpportunityContent(res.rows[0], locale);
 
   const type = getOpportunityType(opp.type);
   const deadline = opp.deadline ? formatDate(opp.deadline) : 'بێ کات';
   const sections = [
-    { title: 'وردەکارییەکان', body: opp.description || 'زانیاری زیاتر بەردەست نییە.' },
+    { title: 'وردەکارییەکان', body: opp.description || localize('زانیاری زیاتر بەردەست نییە.') },
     { title: 'سوودەکان', body: opp.benefits },
     { title: 'چۆنیەتی بەشداریکردن', body: opp.how_to_apply },
   ];
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      {opp.translationUnavailable && <OpportunityTranslationNotice locale={locale} />}
       <Link href="/opportunities" className="mb-8 inline-flex min-h-11 items-center gap-1.5 rounded text-sm font-medium text-slate-500 hover:text-slate-900 focus-ring">
         <ArrowRight className="directional-arrow h-4 w-4" aria-hidden="true" />
         {localize("گەڕانەوە بۆ دەرفەتەکان")}</Link>
@@ -65,10 +69,10 @@ export default async function OpportunityDetail({ params }) {
           <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px] font-medium ${type.tileClass}`}>
             {localize(type.label)}
           </span>
-          <h1 className="mt-4 text-[28px] font-bold leading-snug text-slate-900 sm:text-[36px] sm:leading-tight">{opp.title}</h1>
+          <h1 dir="auto" className="mt-4 text-[28px] font-bold leading-snug text-slate-900 sm:text-[36px] sm:leading-tight">{opp.title}</h1>
           <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[15px] text-slate-500">
-            <li className="flex items-center gap-2"><Briefcase className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{localize(opp.organizer || 'نەزانراو')}</li>
-            <li className="flex items-center gap-2"><MapPin className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{localize(opp.location || 'نەزانراو')}</li>
+            <li className="flex items-center gap-2"><Briefcase className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" /><span dir="auto">{opp.organizer || localize('نەزانراو')}</span></li>
+            <li className="flex items-center gap-2"><MapPin className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" /><span dir="auto">{opp.location || localize('نەزانراو')}</span></li>
             <li className="flex items-center gap-2"><Calendar className="h-[18px] w-[18px] text-slate-400" aria-hidden="true" />{localize(deadline)}</li>
           </ul>
         </header>
@@ -107,7 +111,7 @@ export default async function OpportunityDetail({ params }) {
               <h2 className="text-[19px] font-semibold text-slate-900">{localize("توانا داواکراوەکان")}</h2>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {opp.required_skills.map((skill, idx) => (
-                  <li key={idx} className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm text-slate-700">{localize(skill)}</li>
+                  <li key={idx} dir="auto" className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm text-slate-700">{skill}</li>
                 ))}
               </ul>
             </section>

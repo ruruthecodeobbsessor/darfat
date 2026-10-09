@@ -1,6 +1,6 @@
 import { Rubik, Vazirmatn } from "next/font/google";
 import "../globals.css";
-import { Navbar } from "@/components/Navbar";
+import { OnboardingHeader } from "@/components/onboarding/OnboardingHeader";
 import { Suspense } from "react";
 import { AuthNavbar } from "@/components/auth/AuthNavbar";
 import { Footer } from "@/components/Footer";
@@ -60,7 +60,7 @@ export default async function RootLayout({ children, params }) {
       >
         <LocaleProvider locale={locale}>
         <MotionProvider>
-          <Suspense fallback={<Navbar />}>
+          <Suspense fallback={<OnboardingHeader />}>
             <AuthNavbar />
           </Suspense>
           <main className="flex-1 flex flex-col">{children}</main>
