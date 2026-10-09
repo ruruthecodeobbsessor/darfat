@@ -29,7 +29,7 @@ function Meta({ icon: Icon, children }) {
   );
 }
 
-function MatchPercentageMeter({ score, formatNumber }) {
+function MatchPercentageMeter({ score }) {
   if (!score || score <= 0) return null;
 
   const size = 32;
@@ -49,8 +49,8 @@ function MatchPercentageMeter({ score, formatNumber }) {
     <div
       className="relative flex shrink-0 items-center justify-center"
       style={{ width: size, height: size }}
-      title={`${formatNumber(score)}٪ گونجان`}
-      aria-label={`${formatNumber(score)}٪ گونجان`}
+      title={`${score}٪ گونجان`}
+      aria-label={`${score}٪ گونجان`}
     >
       <svg className="-rotate-90" width={size} height={size}>
         <circle
@@ -73,8 +73,8 @@ function MatchPercentageMeter({ score, formatNumber }) {
           fill="transparent"
         />
       </svg>
-      <span className="absolute font-mono text-[11px] font-bold text-slate-800 tabular-nums">
-        {formatNumber(score)}
+      <span className="absolute font-semibold text-[11px] text-slate-800 tabular-nums">
+        {score}
       </span>
     </div>
   );
@@ -111,7 +111,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
         </span>
 
         {item.matchScore > 0 && (
-          <MatchPercentageMeter score={item.matchScore} formatNumber={formatNumber} />
+          <MatchPercentageMeter score={item.matchScore} />
         )}
       </div>
 
