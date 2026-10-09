@@ -7,7 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --conditions=react-server --test scripts/test-auth.mjs scripts/test-task-ai.mjs scripts/test-task-evidence.mjs scripts/test-database.mjs scripts/test-i18n.mjs",
+    "test:routes": "node scripts/check-auth-routes.mjs",
+    "test:browser": "npm exec --package=playwright@1.64.0 -- node scripts/test-auth-browser.mjs",
+    "test:i18n:browser": "npm exec --package=playwright@1.64.0 -- node scripts/test-i18n-browser.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

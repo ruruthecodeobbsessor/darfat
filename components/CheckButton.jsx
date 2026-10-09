@@ -1,9 +1,12 @@
-'use client';
+"use client";
+
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function CheckButton({ sourceId }) {
+  const { t: localize } = useI18n();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -30,7 +33,6 @@ export function CheckButton({ sourceId }) {
       className="pressable inline-flex h-9 items-center gap-2 rounded-lg bg-orange-50 px-3 text-[13px] font-semibold text-orange-800 hover:bg-orange-100 focus-ring disabled:opacity-50"
     >
       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-      پشکنین
-    </button>
+      {localize("پشکنین")}</button>
   );
 }

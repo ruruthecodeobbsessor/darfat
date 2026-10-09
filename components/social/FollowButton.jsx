@@ -1,11 +1,13 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { useState, useTransition } from "react";
 import { UserCheck, UserPlus } from "lucide-react";
 import { setFollowing } from "@/app/social/actions";
 import { cn } from "@/lib/utils";
 
 export function FollowButton({ userId, name, initialFollowing = false, compact = false, className }) {
+  const { t: localize } = useI18n();
   const [following, setFollowingState] = useState(initialFollowing);
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
@@ -30,7 +32,7 @@ export function FollowButton({ userId, name, initialFollowing = false, compact =
         onClick={toggle}
         disabled={pending}
         aria-pressed={following}
-        aria-label={following ? `لابردنی فۆڵۆی ${name}` : `فۆڵۆکردنی ${name}`}
+        aria-label={localize(following ? localize("لابردنی فۆڵۆی {value0}", { value0: name }) : localize("فۆڵۆکردنی {value0}", { value0: name }))}
         className={cn(
           "pressable inline-flex items-center justify-center gap-2 text-sm font-semibold focus-ring disabled:opacity-70",
           compact ? "h-10 min-w-24 rounded-full px-4" : "h-11 w-full rounded-xl px-4",
@@ -40,9 +42,9 @@ export function FollowButton({ userId, name, initialFollowing = false, compact =
         )}
       >
         {!compact && (following ? <UserCheck className="h-4 w-4" aria-hidden="true" /> : <UserPlus className="h-4 w-4" aria-hidden="true" />)}
-        {following ? "فۆڵۆت کردووە" : "فۆڵۆ"}
+        {localize(following ? "فۆڵۆت کردووە" : "فۆڵۆ")}
       </button>
-      {error && <p className="mt-1 text-xs text-red-700" role="alert">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-700" role="alert">{localize(error)}</p>}
     </div>
   );
 }

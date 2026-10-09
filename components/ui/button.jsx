@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/LocaleProvider";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -23,6 +24,7 @@ export const Button = forwardRef(function Button(
   { className, variant = "primary", size = "md", isLoading = false, disabled = false, children, type = "button", ...props },
   ref
 ) {
+  const { t: localize } = useI18n();
   return (
     <button
       ref={ref}
@@ -41,7 +43,7 @@ export const Button = forwardRef(function Button(
       {isLoading ? (
         <>
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          <span>تکایە چاوەڕێبە...</span>
+          <span>{localize("تکایە چاوەڕێبە...")}</span>
         </>
       ) : (
         children

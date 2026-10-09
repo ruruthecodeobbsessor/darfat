@@ -5,7 +5,7 @@ for (const path of ['/login', '/register', '/login?reason=expired']) {
   const response = await fetch(origin + path, { redirect: 'manual' });
   const html = await response.text();
   assert.equal(response.status, 200, path);
-  if (path.includes('expired')) assert.ok(html.includes('Your session has expired, please sign in again.'));
+  if (path.includes('expired')) assert.ok(html.includes('کاتی چوونەژوورەوەت تەواو بووە. تکایە دووبارە بچۆ ژوورەوە.'));
   console.log(`PASS: ${path} renders.`);
 }
 for (const path of ['/dashboard', '/admin', '/profile', '/admin/future-page']) {
