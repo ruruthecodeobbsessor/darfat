@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckSquare, Compass, House, LogIn, Menu, ShieldCheck, User, Users, X } from "lucide-react";
+import { CheckSquare, Compass, House, LogIn, Menu, ShieldCheck, User, Users, X, Languages, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { UserAvatar } from "@/components/social/UserAvatar";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
-import { stripLocale } from "@/lib/i18n/config";
+import { stripLocale, LANGUAGES, LOCALE_COOKIE, isLocale } from "@/lib/i18n/config";
 
 const ICONS = { "/": House, "/opportunities": Compass, "/people": Users, "/tasks": CheckSquare, "/profile": User };
 
@@ -33,7 +33,7 @@ export function Brand({ className }) {
 }
 
 export function Navbar({ user = null, profile = null }) {
-  const { t: localize } = useI18n();
+  const { locale, t: localize } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = stripLocale(usePathname() ?? "/");
 
@@ -49,12 +49,18 @@ export function Navbar({ user = null, profile = null }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen]);
 
+  function changeLanguage(nextLocale) {
+    if (!isLocale(nextLocale) || nextLocale === locale) return;
+    window.document.cookie = `${LOCALE_COOKIE}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+    window.location.reload();
+  }
+
   return (
     <header className="material sticky top-0 z-50 w-full border-b border-slate-900/[0.06]">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6 lg:px-8">
-        <Brand />
+      <div className="mx-auto grid h-16 max-w-6xl grid-cols-2 items-center px-4 sm:px-6 md:grid-cols-3 lg:px-8">
+        <Brand className="justify-self-start" />
 
-        <nav aria-label={localize("Main navigation")} className="hidden h-full items-center gap-1 md:flex">
+        <nav aria-label={localize("Main navigation")} className="hidden h-full items-center justify-center gap-1 md:flex">
           {links.map((link) => {
             const active = isActive(pathname, link.href);
             return (
@@ -84,36 +90,91 @@ export function Navbar({ user = null, profile = null }) {
           })}
         </nav>
 
-        <div className="ms-auto flex shrink-0 items-center gap-2 lg:ms-0">
-          <LanguageSwitcher />
-          <div className="hidden items-center lg:flex">
-          {isAuthenticated ? (
-            <Link
-              href="/profile"
-              className="pressable flex items-center gap-2.5 rounded-full py-1 pe-3 ps-1 text-sm font-medium text-slate-700 hover:bg-slate-900/[0.04] focus-ring"
-            >
-              <UserAvatar name={profile?.name} url={profile?.avatar_url} className="h-8 w-8 text-xs" />
-              <span className="max-w-36 truncate">{profile?.name || localize("هەژمارەکەم")}</span>
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="pressable inline-flex h-9 items-center gap-2 rounded-full bg-orange-600 px-4 text-sm font-semibold text-white hover:bg-orange-700 focus-ring"
-            >
-              {localize("چوونە ژوورەوە")}</Link>
-          )}
+        <div className="flex shrink-0 items-center justify-self-end gap-3">
+          <div className="hidden items-center md:flex">
+            {isAuthenticated ? (
+              <div className="group relative flex h-16 items-center">
+                <Link
+                  href="/profile"
+                  className="focus-ring pressable flex items-center justify-center rounded-full transition-transform hover:scale-105"
+                  aria-label={localize("هەژمارەکەم")}
+                >
+                  <UserAvatar name={profile?.name} url={profile?.avatar_url} className="h-10 w-10 text-sm shadow-xs ring-2 ring-slate-100 group-hover:ring-orange-200 transition-all duration-300" />
+                </Link>
+                
+                {/* Dropdown Card */}
+                <div className="pointer-events-none absolute top-full mt-1 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-1 group-hover:opacity-100 ltr:right-0 rtl:left-0 z-50">
+                  <div className="w-[300px] rounded-3xl border border-slate-200/80 bg-white/95 p-5 shadow-2xl backdrop-blur-xl">
+                     {/* Profile Header */}
+                     <div className="mb-5 flex flex-col items-center border-b border-slate-100 pb-5">
+                       <UserAvatar name={profile?.name} url={profile?.avatar_url} className="mb-3 h-16 w-16 text-xl shadow-sm" />
+                       <span className="truncate text-base font-bold tracking-tight text-slate-900">{profile?.name || localize("هەژمارەکەم")}</span>
+                       {profile?.email && <span className="mt-0.5 truncate text-sm text-slate-500">{profile?.email}</span>}
+                     </div>
+              
+                     {/* Action Grid */}
+                     <div className="mb-5 grid grid-cols-2 gap-2.5">
+                       <Link href="/profile" className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50 py-3 text-slate-600 transition-colors hover:bg-orange-50 hover:text-orange-700">
+                          <User className="h-5 w-5" />
+                          <span className="text-xs font-semibold">{localize("پڕۆفایل")}</span>
+                       </Link>
+                       {isAdmin ? (
+                         <Link href="/admin" className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50 py-3 text-slate-600 transition-colors hover:bg-orange-50 hover:text-orange-700">
+                            <ShieldCheck className="h-5 w-5" />
+                            <span className="text-xs font-semibold">{localize("ئەدمین")}</span>
+                         </Link>
+                       ) : (
+                         <Link href="/dashboard" className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-slate-50 py-3 text-slate-600 transition-colors hover:bg-orange-50 hover:text-orange-700">
+                            <LayoutDashboard className="h-5 w-5" />
+                            <span className="text-xs font-semibold">{localize("داشبۆرد")}</span>
+                         </Link>
+                       )}
+                     </div>
+                     
+                     {/* Language Switcher Grid */}
+                     <div className="mb-5">
+                       <span className="mb-2 block px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">{localize("زمان")}</span>
+                       <div className="grid grid-cols-3 gap-2">
+                         {LANGUAGES.map((lang) => (
+                           <button 
+                             key={lang.code}
+                             onClick={() => changeLanguage(lang.code)}
+                             className={cn("flex flex-col items-center justify-center gap-1.5 rounded-2xl py-2.5 transition-colors", locale === lang.code ? "bg-orange-100 text-orange-700 ring-1 ring-orange-200" : "bg-slate-50 text-slate-600 hover:bg-slate-100")}
+                           >
+                              <Languages className="h-4 w-4" />
+                              <span className="text-[11px] font-bold">{lang.name}</span>
+                           </button>
+                         ))}
+                       </div>
+                     </div>
+              
+                     <SignOutButton className="w-full justify-center rounded-2xl bg-slate-100 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+               <div className="flex items-center gap-3">
+                  <LanguageSwitcher />
+                  <Link
+                    href="/login"
+                    className="pressable inline-flex h-10 items-center gap-2 rounded-full bg-orange-600 px-5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-orange-700 focus-ring"
+                  >
+                    {localize("چوونە ژوورەوە")}
+                  </Link>
+               </div>
+            )}
           </div>
 
-        <button
-          type="button"
-          onClick={() => setIsOpen((open) => !open)}
-          aria-expanded={isOpen}
-          aria-controls="mobile-menu"
-          aria-label={localize(isOpen ? "داخستنی لیست" : "کردنەوەی لیست")}
-          className="pressable -me-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 hover:bg-slate-900/[0.05] focus-ring lg:hidden"
-        >
-          {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-        </button>
+          <button
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+            aria-label={localize(isOpen ? "داخستنی لیست" : "کردنەوەی لیست")}
+            className="pressable -me-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-700 hover:bg-slate-900/[0.05] focus-ring md:hidden"
+          >
+            {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+          </button>
         </div>
       </div>
 
@@ -121,12 +182,11 @@ export function Navbar({ user = null, profile = null }) {
         {isOpen && (
           <motion.div
             id="mobile-menu"
-            // Drops down from the bar and leaves the same way.
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-            className="border-t border-slate-900/[0.06] bg-white px-4 pb-5 pt-3 shadow-lg lg:hidden"
+            className="border-t border-slate-900/[0.06] bg-white px-4 pb-5 pt-3 shadow-lg md:hidden"
           >
             <nav aria-label={localize("Main navigation")} className="flex flex-col gap-1">
               {links.map((link) => {
@@ -139,8 +199,8 @@ export function Navbar({ user = null, profile = null }) {
                     onClick={() => setIsOpen(false)}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "pressable flex min-h-12 items-center gap-3 rounded-lg px-3 text-[15px] font-medium transition-colors focus-ring",
-                      active ? "text-orange-600 font-semibold" : "text-slate-700 hover:text-orange-600"
+                      "pressable flex min-h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium transition-colors focus-ring",
+                      active ? "bg-orange-50 text-orange-700 font-semibold" : "text-slate-700 hover:bg-slate-50 hover:text-orange-600"
                     )}
                   >
                     <Icon className="h-5 w-5 opacity-80" aria-hidden="true" />
@@ -150,23 +210,28 @@ export function Navbar({ user = null, profile = null }) {
               })}
             </nav>
 
-            <div className="mt-3 border-t border-slate-100 pt-4">
+            <div className="mt-4 space-y-4 border-t border-slate-100 pt-5">
+              <div className="flex justify-center">
+                <LanguageSwitcher />
+              </div>
+              
               {isAuthenticated ? (
-                <div className="flex items-center justify-between gap-3">
-                  <Link href="/profile" onClick={() => setIsOpen(false)} className="flex min-w-0 items-center gap-3 rounded-xl focus-ring">
-                    <UserAvatar name={profile?.name} url={profile?.avatar_url} className="h-10 w-10 text-sm" />
-                    <span className="truncate text-[15px] font-semibold text-slate-900">{profile?.name || localize("هەژمارەکەم")}</span>
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 p-3">
+                  <Link href="/profile" onClick={() => setIsOpen(false)} className="flex min-w-0 items-center gap-3 focus-ring">
+                    <UserAvatar name={profile?.name} url={profile?.avatar_url} className="h-10 w-10 text-sm shadow-sm" />
+                    <span className="truncate text-[15px] font-semibold tracking-tight text-slate-900">{profile?.name || localize("هەژمارەکەم")}</span>
                   </Link>
-                  <SignOutButton />
+                  <SignOutButton className="rounded-xl" />
                 </div>
               ) : (
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-600 text-[15px] font-semibold text-white hover:bg-orange-700 focus-ring"
+                  className="pressable flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-orange-600 text-[15px] font-bold text-white shadow-sm transition-colors hover:bg-orange-700 focus-ring"
                 >
                   <LogIn className="h-4 w-4" aria-hidden="true" />
-                  {localize("چوونە ژوورەوە")}</Link>
+                  {localize("چوونە ژوورەوە")}
+                </Link>
               )}
             </div>
           </motion.div>
