@@ -153,13 +153,10 @@ export function Navbar({ user = null, profile = null }) {
                           setIsProfileOpen(false);
                           setIsLangOpen(false);
                         }}
-                        className="group flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
+                        className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <User className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
-                          <span>{localize("پڕۆفایل")}</span>
-                        </div>
-                        <span className="text-[11px] font-sans text-slate-400 group-hover:text-orange-500">⌘+P</span>
+                        <User className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
+                        <span>{localize("پڕۆفایل")}</span>
                       </Link>
 
                       {isAdmin && (
@@ -169,13 +166,10 @@ export function Navbar({ user = null, profile = null }) {
                             setIsProfileOpen(false);
                             setIsLangOpen(false);
                           }}
-                          className="group flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
+                          className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-orange-50/80 hover:text-orange-600 focus-ring"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <ShieldCheck className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
-                            <span>{localize("ئەدمین")}</span>
-                          </div>
-                          <span className="text-[11px] font-sans text-slate-400 group-hover:text-orange-500">⌘+A</span>
+                          <ShieldCheck className="h-4 w-4 text-slate-400 transition-colors group-hover:text-orange-600" />
+                          <span>{localize("ئەدمین")}</span>
                         </Link>
                       )}
                     </div>
@@ -240,17 +234,12 @@ export function Navbar({ user = null, profile = null }) {
                       <SignOutButton
                         variant="unstyled"
                         size="none"
-                        className="group flex w-full items-center justify-between rounded-xl border border-red-100/70 bg-red-50/40 px-2.5 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-700 hover:shadow-2xs active:scale-[0.99] focus-ring"
+                        className="group flex w-full items-center gap-2.5 rounded-xl border border-red-100/70 bg-red-50/40 px-2.5 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-700 hover:shadow-2xs active:scale-[0.99] focus-ring"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100/70 text-red-600 transition-colors group-hover:bg-red-200/70 group-hover:text-red-700">
-                            <LogOut className="h-3.5 w-3.5 rtl:-scale-x-100" />
-                          </div>
-                          <span className="text-[13px] font-semibold">{localize("چوونەدەرەوە")}</span>
+                        <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100/70 text-red-600 transition-colors group-hover:bg-red-200/70 group-hover:text-red-700">
+                          <LogOut className="h-3.5 w-3.5 rtl:-scale-x-100" />
                         </div>
-                        <kbd className="flex items-center rounded-md border border-red-200/60 bg-white/90 px-1.5 py-0.5 text-[10px] font-mono font-medium text-red-500 shadow-2xs group-hover:border-red-300 group-hover:text-red-600">
-                          ⌘Q
-                        </kbd>
+                        <span className="text-[13px] font-semibold">{localize("چوونەدەرەوە")}</span>
                       </SignOutButton>
                     </div>
                   </div>
