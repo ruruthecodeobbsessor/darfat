@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, FileText, Globe, KeyRound, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Compass, FileText, Globe, KeyRound, Users } from "lucide-react";
 import { requireRole } from "@/lib/auth/server";
 import { query } from "@/lib/db";
 import { AI_PROVIDERS, getAIConfig } from "@/lib/ai-config";
@@ -61,7 +61,7 @@ export default async function AdminHomePage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard href="/admin/users" Icon={Users} label="بەکارهێنەر" value={stats.users}
           detail={`${numberFormat.format(stats.onboarded)} تەواوکردنی پڕۆفایل · ${numberFormat.format(stats.admins)} ئەدمین`} />
-        <StatCard href="/admin/opportunities" Icon={Sparkles} label="دەرفەتی بڵاوکراوە" value={stats.published}
+        <StatCard href="/admin/opportunities" Icon={Compass} label="دەرفەتی بڵاوکراوە" value={stats.published}
           detail={`${numberFormat.format(stats.drafts)} ڕەشنووس چاوەڕێی پەسەندکردنن`} />
         <StatCard href="/admin/sources" Icon={Globe} label="سەرچاوە" value={stats.sources}
           detail={`${numberFormat.format(stats.active_sources)} چالاک · ${numberFormat.format(stats.failing_sources)} کێشەدار`} />

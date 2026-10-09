@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Cake, MapPin, RotateCcw, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, Cake, Handshake, MapPin, RotateCcw, Send } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { controlClass } from "@/components/ui/field";
 import { ONBOARDING_FIELDS } from "@/lib/onboarding";
@@ -99,7 +99,7 @@ export function OnboardingChat() {
       <div className="mb-5">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
+            <Handshake className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-[19px] font-bold text-slate-900">با یەکتر بناسین</h1>

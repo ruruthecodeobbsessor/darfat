@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { requireAuth } from "@/lib/auth/server";
 import { createClient } from "@/lib/supabase/server";
 import { getFollowingIds, getOtherProfiles } from "@/lib/social";
@@ -79,7 +79,7 @@ async function PeopleContent() {
 
   if (!suggestions.length) {
     return (
-      <EmptyState icon={Sparkles} title="هێشتا کەسێکی گونجاو نەدۆزرایەوە" description="لێهاتوویی و حەزی زیاتر بۆ پڕۆفایلەکەت زیاد بکە تا پێشنیاری باشتر وەربگریت.">
+      <EmptyState icon={UserCheck} title="هێشتا کەسێکی گونجاو نەدۆزرایەوە" description="لێهاتوویی و حەزی زیاتر بۆ پڕۆفایلەکەت زیاد بکە تا پێشنیاری باشتر وەربگریت.">
         <Link href="/profile" className="rounded text-sm font-semibold text-orange-700 hover:text-orange-800 focus-ring">
           دەستکاریکردنی پڕۆفایل
         </Link>

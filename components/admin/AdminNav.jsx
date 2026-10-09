@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, Globe, KeyRound, LayoutDashboard, Sparkles, Users } from "lucide-react";
+import { Compass, FileText, Globe, KeyRound, LayoutDashboard, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "سەرەتا", Icon: LayoutDashboard, exact: true },
-  { href: "/admin/opportunities", label: "دەرفەتەکان", Icon: Sparkles },
+  { href: "/admin/opportunities", label: "دەرفەتەکان", Icon: Compass },
   { href: "/admin/sources", label: "سەرچاوەکان", Icon: Globe },
   { href: "/admin/users", label: "بەکارهێنەران", Icon: Users },
   { href: "/admin/posts", label: "پۆستەکان", Icon: FileText },

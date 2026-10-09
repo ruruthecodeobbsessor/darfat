@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckSquare, History, Sparkles, Star } from "lucide-react";
+import { CheckSquare, History, Lightbulb, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -121,7 +121,7 @@ export function TaskWorkspace({ initialData, aiReady, preferences }) {
   return <div className="space-y-8">
     <Card className="p-5 sm:p-7">
       <div className="mb-6 flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600"><Sparkles aria-hidden="true" className="h-5 w-5" /></span>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-orange-600"><Lightbulb aria-hidden="true" className="h-5 w-5" /></span>
         <div><h2 className="text-[17px] font-semibold text-slate-900">ئەرکێکی نوێ دروست بکە</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">حەز و لێهاتووییەکانی پرۆفایلەکەت هەڵبژێرە؛ ژیریی دەستکرد جۆری ئەرکەکە دیاری دەکات.</p>
         </div>
@@ -142,7 +142,7 @@ export function TaskWorkspace({ initialData, aiReady, preferences }) {
         </div>
         <Button type="submit" disabled={!aiReady || Boolean(busy) || (!interest && !skill)} isLoading={busy === "generate"}
           className="sm:col-span-2 lg:col-span-1">
-          <Sparkles aria-hidden="true" className="h-4 w-4" /> <span lang="en">Generate Task</span>
+          <Lightbulb aria-hidden="true" className="h-4 w-4" /> <span lang="en">Generate Task</span>
         </Button>
       </form>
       {!preferences.interests.length && !preferences.skills.length && <p role="status" className="mt-4 text-sm text-amber-800">حەز و لێهاتووییەکانت لە <a href="/profile" className="underline underline-offset-4 focus-ring">پرۆفایلەکەت</a> زیاد بکە بۆ دروستکردنی ئەرکی تایبەت بە تۆ.</p>}

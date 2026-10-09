@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckSquare, House, LogIn, Menu, Sparkles, ShieldCheck, User, Users, X } from "lucide-react";
+import { CheckSquare, Compass, House, LogIn, Menu, ShieldCheck, User, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 import { UserAvatar } from "@/components/social/UserAvatar";
 
-const ICONS = { "/": House, "/opportunities": Sparkles, "/people": Users, "/tasks": CheckSquare, "/profile": User };
+const ICONS = { "/": House, "/opportunities": Compass, "/people": Users, "/tasks": CheckSquare, "/profile": User };
 
 function isActive(pathname, href) {
   if (href === "/") return pathname === "/";
@@ -49,7 +49,7 @@ export function Navbar({ user = null, profile = null }) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Brand />
 
-        <nav aria-label="سەرەکی" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="سەرەکی" className="hidden h-full items-center gap-1 md:flex">
           {links.map((link) => {
             const active = isActive(pathname, link.href);
             return (
@@ -58,11 +58,22 @@ export function Navbar({ user = null, profile = null }) {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "pressable rounded-full px-3.5 py-2 text-sm font-medium focus-ring",
-                  active ? "bg-slate-900/[0.06] text-slate-900" : "text-slate-500 hover:text-slate-900"
+                  "group relative flex h-full items-center px-3.5 text-sm font-medium transition-colors focus-ring",
+                  active
+                    ? "text-orange-600 font-semibold"
+                    : "text-slate-600 hover:text-orange-600"
                 )}
               >
-                {link.label}
+                <span>{link.label}</span>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute inset-x-0 -bottom-[1px] h-0.5 transition-all duration-200",
+                    active
+                      ? "bg-orange-600 opacity-100"
+                      : "bg-orange-600 opacity-0 group-hover:opacity-100"
+                  )}
+                />
               </Link>
             );
           })}
@@ -121,8 +132,8 @@ export function Navbar({ user = null, profile = null }) {
                     onClick={() => setIsOpen(false)}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "pressable flex min-h-12 items-center gap-3 rounded-xl px-3 text-[15px] font-medium focus-ring",
-                      active ? "bg-orange-50 text-orange-800" : "text-slate-700 hover:bg-slate-50"
+                      "pressable flex min-h-12 items-center gap-3 rounded-lg px-3 text-[15px] font-medium transition-colors focus-ring",
+                      active ? "text-orange-600 font-semibold" : "text-slate-700 hover:text-orange-600"
                     )}
                   >
                     <Icon className="h-5 w-5 opacity-80" aria-hidden="true" />
