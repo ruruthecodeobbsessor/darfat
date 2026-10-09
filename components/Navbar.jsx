@@ -236,17 +236,21 @@ export function Navbar({ user = null, profile = null }) {
                     <div className="my-1.5 h-px bg-slate-100" />
 
                     {/* Sign Out Item */}
-                    <div>
+                    <div className="pt-0.5">
                       <SignOutButton
                         variant="unstyled"
                         size="none"
-                        className="group flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-red-50/80 hover:text-red-600 focus-ring"
+                        className="group flex w-full items-center justify-between rounded-xl border border-red-100/70 bg-red-50/40 px-2.5 py-2 text-sm font-medium text-red-600 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-700 hover:shadow-2xs active:scale-[0.99] focus-ring"
                       >
                         <div className="flex items-center gap-2.5">
-                          <LogOut className="h-4 w-4 text-slate-400 transition-colors group-hover:text-red-600" />
-                          <span>{localize("چوونەدەرەوە")}</span>
+                          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-100/70 text-red-600 transition-colors group-hover:bg-red-200/70 group-hover:text-red-700">
+                            <LogOut className="h-3.5 w-3.5 rtl:-scale-x-100" />
+                          </div>
+                          <span className="text-[13px] font-semibold">{localize("چوونەدەرەوە")}</span>
                         </div>
-                        <span className="text-[11px] font-sans text-slate-400 group-hover:text-red-500">⌘+Q</span>
+                        <kbd className="flex items-center rounded-md border border-red-200/60 bg-white/90 px-1.5 py-0.5 text-[10px] font-mono font-medium text-red-500 shadow-2xs group-hover:border-red-300 group-hover:text-red-600">
+                          ⌘Q
+                        </kbd>
                       </SignOutButton>
                     </div>
                   </div>
@@ -324,7 +328,11 @@ export function Navbar({ user = null, profile = null }) {
                     </div>
                     <span className="truncate text-[15px] font-semibold tracking-tight text-slate-900">{profile?.name || localize("هەژمارەکەم")}</span>
                   </Link>
-                  <SignOutButton className="rounded-xl" />
+                  <SignOutButton
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl border-red-200/80 bg-red-50/50 text-red-600 hover:bg-red-100 hover:text-red-700 font-semibold shadow-2xs"
+                  />
                 </div>
               ) : (
                 <Link
