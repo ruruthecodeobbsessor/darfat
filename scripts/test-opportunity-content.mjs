@@ -51,6 +51,8 @@ test("English translates dynamic content while keeping identifiers, URLs, deadli
     assert.equal(content.deadline, undefined);
     assert.equal(content.title, opportunity.title);
     assert.equal(body.response_format.json_schema.strict, true);
+    assert.equal(body.reasoning_effort, "low");
+    assert.ok(body.max_completion_tokens >= 2048 && body.max_completion_tokens < 8192);
     return groqReply({ ...english, id: "invented", link: "https://invented.com", matchScore: 100 });
   });
   const result = await getOpportunityContent(opportunity, "en");
@@ -97,6 +99,16 @@ test("provider failures and timeouts return original content with an explicit un
   const result = await getOpportunityContent(opportunity, "en");
   assert.equal(result.title, opportunity.title);
   assert.equal(result.translationUnavailable, true);
+});
+
+test("brief provider cooldowns retry once; long quota cooldowns fall back immediately", async t => {
+  let calls = 0;
+  mock(t, async () => ++calls === 1 ? new Response(null, { status: 429, headers: { "retry-after": "0" } }) : groqReply(english));
+  assert.equal((await getOpportunityContent(opportunity, "en")).translationUnavailable, false);
+  assert.equal(calls, 2);
+  t.mock.method(globalThis, "fetch", async () => { calls++; return new Response(null, { status: 429, headers: { "retry-after": "3600" } }); });
+  assert.equal((await getOpportunityContent(opportunity, "en")).translationUnavailable, true);
+  assert.equal(calls, 3);
 });
 
 test("cards translate AI matching explanations without altering scores or original matching skills", async t => {

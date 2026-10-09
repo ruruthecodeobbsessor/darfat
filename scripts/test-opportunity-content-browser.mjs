@@ -96,6 +96,14 @@ try {
   await page.screenshot({ path: ".next/opportunity-language-qa/en-mobile.png", fullPage: true });
   await page.goto(origin + "/opportunities");
   await page.locator('main a[href^="/opportunities/"] h3').first().waitFor();
+  if (await page.getByText("Translation is temporarily unavailable", { exact: false }).count()) {
+    // The live provider has a small per-minute budget. Verify the honest
+    // fallback, then revisit after that budget has had time to refill.
+    console.log("PASS: provider rate limiting shows the original content with a translation notice.");
+    await new Promise(resolve => setTimeout(resolve, 30000));
+    await page.reload();
+    await page.locator('main a[href^="/opportunities/"] h3').first().waitFor();
+  }
   const cards = page.locator('main a[href^="/opportunities/"]');
   assert.ok(await cards.count() > 0);
   assert.doesNotMatch((await cards.allTextContents()).join(" "), /[\u0620-\u064a\u066e-\u06d3\u06fa-\u06fc]/u);
