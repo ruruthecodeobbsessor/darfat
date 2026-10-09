@@ -3,8 +3,10 @@ import { Suspense } from 'react';
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/server';
 import { getOpportunityMatches } from '@/lib/opportunity-match';
+import { getOpportunityCards } from '@/lib/opportunity-content';
+import { OpportunityTranslationNotice } from '@/components/OpportunityTranslationNotice';
 import Link from 'next/link';
-import { BadgeCheck, Briefcase, Compass, GraduationCap, HandHeart, Layers, Rocket, Terminal, Trophy, UserCheck, Users2 } from 'lucide-react';
+import { BadgeCheck, Briefcase, GraduationCap, HandHeart, Layers, Rocket, Terminal, Trophy, UserCheck, Users2 } from 'lucide-react';
 
 const FILTER_ICONS = {
   hackathon: Terminal,
@@ -83,7 +85,7 @@ function FilterChip({ href, active, className, children }) {
 const PAGE_SIZE = 9;
 
 async function OpportunityResults({ searchParams }) {
-  const { t: localize } = await getServerI18n();
+  const { t: localize, locale } = await getServerI18n();
   const [{ profile }, resolvedParams] = await Promise.all([requireAuth(), searchParams]);
   const typeFilter = resolvedParams?.type;
   const rawPage = parseInt(resolvedParams?.page, 10);
@@ -175,9 +177,14 @@ async function OpportunityResults({ searchParams }) {
   const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
   const activePage = Math.min(requestedPage, totalPages);
   const paginatedOpportunities = opportunities.slice((activePage - 1) * PAGE_SIZE, activePage * PAGE_SIZE);
+  const visibleRecommendations = !typeFilter && activePage === 1 ? topRecommended : [];
+  const visible = [...new Map([...visibleRecommendations, ...paginatedOpportunities].map(opp => [opp.id, opp])).values()];
+  const translatedCards = await getOpportunityCards(visible, locale);
+  const displayById = new Map(translatedCards.map(opp => [opp.id, opp]));
 
   return (
     <>
+      {translatedCards.some(opp => opp.translationUnavailable) && <OpportunityTranslationNotice locale={locale} />}
       {/* Onboarding Profile Completion Prompt if profile is incomplete */}
       {!hasOnboardingData && (
         <div className="mb-8 flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 sm:flex-row sm:items-center sm:p-5">
@@ -271,7 +278,7 @@ async function OpportunityResults({ searchParams }) {
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {topRecommended.map((opp) => (
-              <SpotlightCard key={`top-rec-${opp.id}`} item={opp} isTopRecommended={true} userSkills={userSkills} />
+              <SpotlightCard key={`top-rec-${opp.id}`} item={displayById.get(opp.id)} isTopRecommended={true} userSkills={userSkills} />
             ))}
           </div>
 
@@ -304,7 +311,7 @@ async function OpportunityResults({ searchParams }) {
           <StaggerContainer className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {paginatedOpportunities.map((opp) => (
               <StaggerItem key={opp.id} className="h-full">
-                <SpotlightCard item={opp} userSkills={userSkills} />
+                <SpotlightCard item={displayById.get(opp.id)} userSkills={userSkills} />
               </StaggerItem>
             ))}
           </StaggerContainer>

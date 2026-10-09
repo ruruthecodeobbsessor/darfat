@@ -41,6 +41,9 @@ reports `28P01`, `node scripts/setup-tasks.mjs --repair-login` restores the exis
 random credential for `task_api` only. It checks that the saved connection targets
 the same project and that the role still enforces RLS. It does not rotate project
 credentials, elevate privileges, or change user accounts.
+After a repair, verification retries a temporarily cached pooler password for up
+to six attempts. Query timeouts and idle-pool error handling keep a dropped
+connection from hanging requests or crashing the application.
 
 ## Ownership and scoring
 

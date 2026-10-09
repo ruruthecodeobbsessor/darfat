@@ -2,8 +2,9 @@ import { getServerI18n, localizeMetadata } from "@/lib/i18n/server";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { requireAuth } from "@/lib/auth/server";
-import { OnboardingChat } from "@/components/onboarding/OnboardingChat";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { Spinner } from "@/components/ui/spinner";
+import { randomUUID } from "node:crypto";
 
 export async function generateMetadata() {
   const { t } = await getServerI18n();
@@ -13,9 +14,10 @@ export async function generateMetadata() {
 }
 
 async function OnboardingContent() {
-  const { profile } = await requireAuth();
+  const { profile } = await requireAuth({ allowIncomplete: true });
   if (profile.onboarding_completed) redirect("/opportunities");
-  return <OnboardingChat />;
+  // A fresh request always starts a fresh interview, including a redirected revisit.
+  return <OnboardingFlow key={randomUUID()} initialProfile={{ name: profile.name, age: profile.age, bio: profile.bio, interests: profile.interests, skills: profile.skills }} />;
 }
 
 export default async function OnboardingPage() {
@@ -24,7 +26,7 @@ export default async function OnboardingPage() {
     <Suspense
       fallback={
         <div className="flex flex-1 items-center justify-center">
-          <Spinner text={localize("ئامادەکردنی گفتوگۆ...")} />
+          <Spinner text={localize("بارکردن...")} />
         </div>
       }
     >

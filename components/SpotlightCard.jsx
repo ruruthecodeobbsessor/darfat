@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/components/i18n/LocaleProvider";
 import Link from "next/link";
-import { ArrowLeft, Award, BookOpen, Briefcase, Calendar, Check, Compass, GraduationCap, HandHeart, Lightbulb, MapPin, Terminal, Trophy, Users2 } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, Briefcase, Calendar, Check, Compass, GraduationCap, HandHeart, MapPin, Terminal, Trophy, Users2 } from "lucide-react";
 import { getOpportunityType } from "@/lib/constants";
 
 const TYPE_ICONS = {
@@ -24,7 +24,7 @@ function Meta({ icon: Icon, children }) {
   return (
     <li className="flex min-w-0 items-center gap-1.5 text-xs text-slate-500">
       <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-      <span className="truncate">{localize(children)}</span>
+      <span dir="auto" className="truncate">{localize(children)}</span>
     </li>
   );
 }
@@ -82,7 +82,7 @@ function MatchPercentageMeter({ score }) {
 
 // Opportunity card with minimalist aesthetic and skill match indicators
 export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] }) {
-  const { t: localize, formatDate, formatNumber } = useI18n();
+  const { t: localize, formatDate } = useI18n();
   const type = getOpportunityType(item.type);
   const TypeIcon = TYPE_ICONS[item.type] ?? Compass;
   const date = item.date || (item.deadline ? formatDate(item.deadline) : null);
@@ -115,7 +115,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
         )}
       </div>
 
-      <h3 className="mt-3.5 line-clamp-2 text-base font-semibold leading-snug text-slate-900 group-hover:text-orange-700 transition-colors">
+      <h3 dir="auto" className="mt-3.5 line-clamp-2 text-base font-semibold leading-snug text-slate-900 group-hover:text-orange-700 transition-colors">
         {item.example ? localize(item.title) : item.title}
       </h3>
 
@@ -133,8 +133,8 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
       {item.skills?.length > 0 && (
         <div className="mt-3.5">
           <ul className="flex flex-wrap items-center gap-1.5" aria-label={localize("لێهاتووییە داواکراوەکان")}>
-            {item.skills.map((skill) => {
-              const cleanSkill = String(skill).toLowerCase().trim();
+            {item.skills.map((skill, index) => {
+              const cleanSkill = String(item.originalSkills?.[index] ?? skill).toLowerCase().trim();
               const isMatched = (userSkills || []).some(
                 (u) => u && (cleanSkill.includes(u) || u.includes(cleanSkill))
               );
@@ -148,7 +148,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
                   }`}
                 >
                   {isMatched && <Check className="h-3 w-3 text-emerald-600" aria-hidden="true" />}
-                  <span>{localize(skill)}</span>
+                  <span dir="auto">{item.originalSkills ? skill : localize(skill)}</span>
                 </li>
               );
             })}
@@ -160,7 +160,7 @@ export function SpotlightCard({ item, isTopRecommended = false, userSkills = [] 
       {item.aiReason && (
         <div className="mt-3.5 flex items-start gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs leading-relaxed text-slate-600">
           <Compass className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden="true" />
-          <span className="line-clamp-2">{localize(item.aiReason)}</span>
+          <span dir="auto" className="line-clamp-2">{item.originalSkills ? item.aiReason : localize(item.aiReason)}</span>
         </div>
       )}
 
